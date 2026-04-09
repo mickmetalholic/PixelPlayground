@@ -1,21 +1,21 @@
 {
-  "name": "pixel-playground",
-  "private": true,
-  "packageManager": "pnpm@9.15.9",
-  "engines": {
-    "node": ">=22.0.0 <23"
-  },
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.11",
-    "husky": "9.1.7",
-    "lint-staged": "15.4.3",
-    "turbo": "^2.4.4",
-    "typescript": "^5.8.2"
-  }
+	"name": "pixel-playground",
+	"private": true,
+	"packageManager": "pnpm@9.15.9",
+	"engines": {
+		"node": ">=22.0.0 <23"
+	},
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "turbo run lint",
+		"test": "turbo run test"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.11",
+		"husky": "9.1.7",
+		"lint-staged": "15.4.3",
+		"turbo": "^2.4.4",
+		"typescript": "^5.8.2"
+	}
 }
