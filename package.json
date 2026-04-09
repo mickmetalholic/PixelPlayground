@@ -11,7 +11,8 @@
 		"lint": "turbo run lint //#lint:root",
 		"lint:root": "biome check .",
 		"lint:fix": "biome check --write .",
-		"test": "turbo run test"
+		"test": "turbo run test",
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.11",
@@ -19,5 +20,8 @@
 		"lint-staged": "15.4.3",
 		"turbo": "^2.4.4",
 		"typescript": "^5.8.2"
+	},
+	"lint-staged": {
+		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": "biome check --no-errors-on-unmatched --files-ignore-unknown=true"
 	}
 }
