@@ -6,5 +6,6 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true
-  }
+  },
+  "include": ["types/**/*.ts"]
 }
