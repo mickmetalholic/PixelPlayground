@@ -122,3 +122,8 @@
 
 1. 用户审阅本文件并确认无歧义后，使用 **writing-plans** 生成 `docs/superpowers/plans/YYYY-MM-DD-turborepo-monorepo.md` 实现计划。
 2. 实现计划执行时优先查阅 Turborepo 官方文档或 Context7，核对 `turbo.json` 与 CLI 行为。
+
+## 11. 实现备注（2026-04-10）
+
+- **Turbo 空图：** 在仅有根包、无 `apps/*` / `packages/*` 子包 `package.json`、且根脚本为 `turbo run build` 时，`pnpm turbo run build` 以 **0 个 package、退出码 0** 结束（日志含 `Running build in 0 packages`）。**未**采用根级 `echo` no-op 作为补丁。
+- **`tsc --showConfig`：** 当仓库内无任何 `.ts` 输入时，TypeScript 会报 `TS18003`。为满足第 3 节成功标准，增加 `types/workspace-stub.ts`（内容为 `export {}`），并在根 `tsconfig.json` 中设置 `"include": ["types/**/*.ts"]`。该文件仅用于工具链自检，**不是**业务示例应用。
