@@ -221,7 +221,6 @@ Replace the `scripts` block so it contains at least:
 		"lint": "turbo run lint //#lint:root",
 		"lint:root": "biome check .",
 		"lint:fix": "biome check --write .",
-		"prepare": "husky",
 		"test": "turbo run test"
 	}
 }
@@ -229,6 +228,7 @@ Replace the `scripts` block so it contains at least:
 
 Notes:
 
+- Do **not** add `"prepare": "husky"` yet — `pnpm exec husky init` in Task 5 will insert it. Adding `prepare` before `.husky/` exists can make `pnpm install` noisy or fail on a clean clone.
 - `lint:root` is the script Turborepo maps to `//#lint:root`.
 - `pnpm lint` always runs workspace `lint` tasks **and** the root Biome task, matching the design intent once child packages appear.
 
@@ -263,7 +263,7 @@ git commit -m "chore(lint): wire turbo root lint task and npm scripts"
 
 **Files:**
 
-- Modify: `package.json` (`lint-staged`, `prepare` already set in Task 4)
+- Modify: `package.json` (`lint-staged`; `prepare` is added by `husky init` in Step 1)
 - Create: `.husky/pre-commit`
 - Create: `.husky/_/*` (via `husky init`)
 
@@ -278,7 +278,7 @@ pnpm exec husky init
 Expected:
 
 - `.husky/pre-commit` exists.
-- `package.json` contains `"prepare": "husky"` (merge if Husky added a duplicate key instead of replacing scripts).
+- `package.json` contains `"prepare": "husky"` (Husky inserts this automatically; merge carefully if you already had a `prepare` script for another tool).
 
 - [ ] **Step 2: Replace the default hook body**
 
@@ -421,7 +421,7 @@ git commit -m "docs(specs): clarify turbo lint success criteria for biome"
 | `pnpm lint` / `pnpm lint:fix` | Task 4 |
 | Turbo alignment + root coverage | Task 4 (`//#lint:root`) + Task 7 (spec clarification) |
 | Husky + lint-staged, check-only | Task 5 |
-| `pnpm install` installs hooks (`prepare`) | Task 4 + Task 5 |
+| `pnpm install` installs hooks (`prepare`) | Task 5 (`husky init` adds `prepare`) |
 | Ignore build artifacts / deps | Task 3 (`vcs.useIgnoreFile`) |
 | No CI | Not part of this plan (explicitly out of scope) |
 
