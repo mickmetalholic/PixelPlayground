@@ -30,7 +30,7 @@
 实现完成后须满足：
 
 1. **`pnpm install`** 成功；`@biomejs/biome`、`husky`、`lint-staged` 写入根 `devDependencies` 并由 `pnpm-lock.yaml` 锁定；**`prepare`（或 husky 官方当前推荐等价方式）** 使克隆者在安装依赖后能获得可用的 **pre-commit**（若官方流程要求额外一次性命令，须在实现计划中写明）。
-2. 根执行 **`pnpm lint`** **退出码为 0**；**`pnpm turbo run lint`** 与之一致且 **退出码为 0**（无子包时由根包执行，不得因配置错误失败）。
+2. 根执行 **`pnpm lint`** **退出码为 0**。`pnpm lint` 必须通过 Turborepo 同时调度 **子包 `lint` 任务**（若存在）与根 **`//#lint:root`** 任务（脚本名 `lint:root`，即 `biome check .`）。在「尚无子包定义 `lint`」阶段，单独的 **`pnpm turbo run lint`** 可能仍显示 0 个包任务；此时以 **`pnpm turbo run //#lint:root`**（或与 `pnpm lint` 等价）作为 Turbo 路径下的验收命令。子包补齐 `lint` 后，`pnpm turbo run lint` 将自然包含包级任务，而 `pnpm lint` 仍应通过 `//#lint:root` 覆盖仓库根目录文件。
 3. **`pnpm lint:fix`** 执行后，再次 **`pnpm lint`** 仍为 0（在仅有当前仓库规模与样例文件的前提下验证即可）。
 4. **pre-commit**：暂存含 **故意违规** 的受检文件时提交 **失败**；暂存 **无** 匹配文件时 **不** 无故阻断提交（lint-staged 常规 no-op）。
 5. 全仓仅根 **一份** Biome 配置文件生效；hook 与 `pnpm lint` **共用**该配置。
