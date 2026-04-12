@@ -1,17 +1,14 @@
 {
   "name": "pixel-playground",
   "private": true,
-  "packageManager": "pnpm@9.15.9",
-  "engines": {
-    "node": ">=22.0.0 <23"
-  },
   "scripts": {
-    "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
+    "build": "turbo run build",
+    "start": "turbo run start",
     "test": "turbo run test",
     "test:cov": "turbo run test:cov",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -23,5 +20,13 @@
   },
   "lint-staged": {
     "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "volta": {
+    "node": "24.14.1",
+    "pnpm": "9.15.9"
   }
 }
