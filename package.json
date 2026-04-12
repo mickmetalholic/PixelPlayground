@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=22.0.0 <23"
+    "node": ">=24.0.0 <25"
   },
   "scripts": {
     "build": "turbo run build",
@@ -23,5 +23,8 @@
   },
   "lint-staged": {
     "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+  },
+  "volta": {
+    "node": "24.14.1"
   }
 }
