@@ -11,6 +11,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "turbo run test",
+    "test:cov": "turbo run test:cov",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -21,9 +22,6 @@
     "typescript": "^5.8.2"
   },
   "lint-staged": {
-    "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
-      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
-      "git add"
-    ]
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
   }
 }
