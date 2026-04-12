@@ -1,23 +1,18 @@
 {
   "name": "@pixel-playground/backend",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "0.0.0",
   "private": true,
-  "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "start": "nest start",
     "dev": "nest start --watch",
-    "start:dev": "nest start --watch",
+    "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "biome check .",
+    "build": "nest build",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --selectProjects unit",
+    "test:e2e": "jest --selectProjects e2e",
+    "test:cov": "jest --selectProjects unit --coverage"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -43,32 +38,5 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s",
-      "!**/*.spec.ts",
-      "!**/main.ts"
-    ],
-    "coverageDirectory": "../coverage",
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
-    },
-    "testEnvironment": "node"
   }
 }
