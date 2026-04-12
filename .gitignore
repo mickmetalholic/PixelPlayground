@@ -2,5 +2,6 @@
 node_modules/
 .turbo/
 dist/
+coverage/
 *.log
 .env*.local
