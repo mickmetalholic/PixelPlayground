@@ -16,11 +16,27 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/health (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect({ ok: true });
+  });
+
+  it('/trpc/home.summary (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/trpc/home.summary')
+      .expect(200);
+
+    expect(response.body).toEqual({
+      result: {
+        data: {
+          json: {
+            summary: 'Hello World!',
+          },
+        },
+      },
+    });
   });
 
   afterEach(async () => {

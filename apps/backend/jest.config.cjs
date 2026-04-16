@@ -8,7 +8,23 @@ module.exports = {
       rootDir: 'src',
       testRegex: '.*\\.spec\\.ts$',
       transform: {
-        '^.+\\.(t|j)s$': 'ts-jest',
+        '^.+\\.(t|j)s$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              module: 'commonjs',
+              moduleResolution: 'node',
+              resolvePackageJsonExports: false,
+            },
+          },
+        ],
+      },
+      moduleNameMapper: {
+        '^superjson$': '<rootDir>/../mocks/superjson.ts',
+        '^@pixel-playground/api$':
+          '<rootDir>/../../../packages/api/src/index.ts',
+        '^@pixel-playground/api/(.*)$':
+          '<rootDir>/../../../packages/api/src/$1',
       },
       collectCoverageFrom: ['**/*.(t|j)s', '!**/*.spec.ts', '!**/main.ts'],
       coverageDirectory: '../coverage',
@@ -28,7 +44,23 @@ module.exports = {
       rootDir: 'test',
       testRegex: '.*\\.e2e-spec\\.ts$',
       transform: {
-        '^.+\\.(t|j)s$': 'ts-jest',
+        '^.+\\.(t|j)s$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              module: 'commonjs',
+              moduleResolution: 'node',
+              resolvePackageJsonExports: false,
+            },
+          },
+        ],
+      },
+      moduleNameMapper: {
+        '^superjson$': '<rootDir>/../mocks/superjson.ts',
+        '^@pixel-playground/api$':
+          '<rootDir>/../../../packages/api/src/index.ts',
+        '^@pixel-playground/api/(.*)$':
+          '<rootDir>/../../../packages/api/src/$1',
       },
     },
   ],
