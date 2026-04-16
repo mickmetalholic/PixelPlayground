@@ -8,10 +8,12 @@
   "scripts": {
     "test": "vitest run"
   },
-  "devDependencies": {
+  "dependencies": {
     "@trpc/server": "^11.16.0",
     "superjson": "^2.2.6",
-    "vitest": "^4.1.4",
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.4"
   }
 }
