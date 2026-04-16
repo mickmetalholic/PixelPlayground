@@ -2,8 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { ChatRequestDto } from './dto/chat-request.dto';
 import type { ChatResponseDto } from './dto/chat-response.dto';
-import type { LanggraphClientRepository } from './langgraph-client.repository';
-import type { SessionIndexRepository } from './session-index.repository';
+// biome-ignore lint/style/useImportType: NestJS constructor injection needs runtime class value.
+import { LanggraphClientRepository } from './langgraph-client.repository';
+// biome-ignore lint/style/useImportType: NestJS constructor injection needs runtime class value.
+import { SessionIndexRepository } from './session-index.repository';
 
 @Injectable()
 export class LanggraphGatewayService {
