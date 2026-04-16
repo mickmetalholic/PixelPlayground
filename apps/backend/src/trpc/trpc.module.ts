@@ -4,6 +4,7 @@ import {
   type NestModule,
 } from '@nestjs/common';
 import { createHTTPHandler } from '@trpc/server/adapters/standalone';
+import type { NextFunction, Request, Response } from 'express';
 import { AppService } from '../app.service';
 import { createNestTrpcContext } from './trpc.context';
 import { appRouter } from './trpc.router';
@@ -16,7 +17,7 @@ export class TrpcModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(async (req, res, next) => {
+      .apply(async (req: Request, res: Response, next: NextFunction) => {
         try {
           return createHTTPHandler({
             router: appRouter,
