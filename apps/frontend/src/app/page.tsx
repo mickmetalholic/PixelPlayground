@@ -15,10 +15,12 @@ export default function HomePage() {
     );
   }
 
+  const summary = summaryQuery.data?.summary ?? '';
+
   return (
     <main className="p-8">
       <h1 className="text-2xl font-semibold">Pixel Playground - tRPC demo</h1>
-      <p className="mt-4">{summaryQuery.data.summary}</p>
+      <p className="mt-4">{summary}</p>
     </main>
   );
 }

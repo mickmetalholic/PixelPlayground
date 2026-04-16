@@ -10,6 +10,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@pixel-playground/api": "workspace:*",
     "@tanstack/react-query": "^5.99.0",
     "@trpc/client": "^11.16.0",
     "@trpc/react-query": "^11.16.0",

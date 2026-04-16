@@ -4,10 +4,10 @@ import superjson from 'superjson';
 
 export function createBackendTrpcClient(nestOrigin: string) {
   return createTRPCProxyClient<AppRouter>({
-    transformer: superjson,
     links: [
       httpBatchLink({
         url: `${nestOrigin.replace(/\/$/, '')}/trpc`,
+        transformer: superjson,
       }),
     ],
   });
