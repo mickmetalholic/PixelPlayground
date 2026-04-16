@@ -23,6 +23,22 @@ describe('AppController (e2e)', () => {
       .expect({ ok: true });
   });
 
+  it('/trpc/home.summary (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/trpc/home.summary')
+      .expect(200);
+
+    expect(response.body).toEqual({
+      result: {
+        data: {
+          json: {
+            summary: 'Hello World!',
+          },
+        },
+      },
+    });
+  });
+
   afterEach(async () => {
     await app.close();
   });

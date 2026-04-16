@@ -6,19 +6,21 @@ import {
 import { createHTTPHandler } from '@trpc/server/adapters/standalone';
 import { AppService } from '../app.service';
 import { createNestTrpcContext } from './trpc.context';
-import { loadAppRouter } from './trpc.router';
+import { appRouter } from './trpc.router';
 
-@Module({})
+@Module({
+  providers: [AppService],
+})
 export class TrpcModule implements NestModule {
+  constructor(private readonly appService: AppService) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(async (req, res, next) => {
         try {
-          const appService = req.app.get(AppService);
-          const appRouter = await loadAppRouter();
           return createHTTPHandler({
             router: appRouter,
-            createContext: createNestTrpcContext(appService),
+            createContext: createNestTrpcContext(this.appService),
           })(req, res);
         } catch (error) {
           next(error);
