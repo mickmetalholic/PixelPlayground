@@ -48,6 +48,10 @@ describe('home.summary procedure', () => {
       },
     });
 
-    await expect(caller.home.summary()).rejects.toBe(unknownError);
+    await expect(caller.home.summary()).rejects.toBeInstanceOf(TRPCError);
+    await expect(caller.home.summary()).rejects.toMatchObject({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'boom',
+    });
   });
 });
