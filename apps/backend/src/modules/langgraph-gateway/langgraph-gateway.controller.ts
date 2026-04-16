@@ -2,7 +2,8 @@ import { Body, Controller, HttpException, Post } from '@nestjs/common';
 import type { ChatRequestDto } from './dto/chat-request.dto';
 import type { ChatResponseDto } from './dto/chat-response.dto';
 import { LanggraphGatewayError } from './errors/langgraph-gateway.error';
-import type { LanggraphGatewayService } from './langgraph-gateway.service';
+// biome-ignore lint/style/useImportType: NestJS constructor injection needs runtime class value.
+import { LanggraphGatewayService } from './langgraph-gateway.service';
 
 @Controller('langgraph')
 export class LanggraphGatewayController {
