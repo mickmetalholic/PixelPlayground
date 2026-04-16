@@ -30,8 +30,9 @@ describe('home.summary procedure', () => {
       },
     });
 
-    await expect(caller.home.summary()).rejects.toBeInstanceOf(TRPCError);
-    await expect(caller.home.summary()).rejects.toMatchObject({
+    const summaryCall = caller.home.summary();
+    await expect(summaryCall).rejects.toBeInstanceOf(TRPCError);
+    await expect(summaryCall).rejects.toMatchObject({
       code: 'SERVICE_UNAVAILABLE',
       message: 'Nest upstream unreachable',
     });
