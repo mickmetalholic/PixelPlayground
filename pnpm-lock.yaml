@@ -105,6 +105,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@pixel-playground/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@tanstack/react-query':
         specifier: ^5.99.0
         version: 5.99.0(react@19.1.0)
@@ -159,19 +162,20 @@ importers:
         version: 4.1.4(@types/node@20.19.39)(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3))
 
   packages/api:
-    devDependencies:
+    dependencies:
       '@trpc/server':
         specifier: ^11.16.0
         version: 11.16.0(typescript@5.9.3)
       superjson:
         specifier: ^2.2.6
         version: 2.2.6
-      vitest:
-        specifier: ^4.1.4
-        version: 4.1.4(@types/node@24.12.2)(vite@8.0.8(@types/node@24.12.2)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3))
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+    devDependencies:
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@types/node@24.12.2)(vite@8.0.8(@types/node@24.12.2)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3))
 
 packages:
 
