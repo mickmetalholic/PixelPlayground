@@ -61,6 +61,13 @@ jobs:
       - name: Tests with coverage
         run: pnpm test:cov
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./apps/backend/coverage/lcov.info,./apps/frontend/coverage/lcov.info
+          flags: backend,frontend
+          fail_ci_if_error: true
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: success()
