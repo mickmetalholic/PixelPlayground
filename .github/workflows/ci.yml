@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - master
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -25,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.14.1'
+          node-version: '24.15.0'
           cache: pnpm
 
       - name: Install dependencies
@@ -53,7 +52,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.14.1'
+          node-version: '24.15.0'
           cache: pnpm
 
       - name: Install dependencies
@@ -62,9 +61,19 @@ jobs:
       - name: Tests with coverage
         run: pnpm test:cov
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./apps/backend/coverage/lcov.info,./apps/frontend/coverage/lcov.info
+          flags: backend,frontend
+          fail_ci_if_error: true
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: success()
         with:
           name: coverage
-          path: apps/backend/coverage
+          path: |
+            **/coverage
+            !**/node_modules/**/coverage

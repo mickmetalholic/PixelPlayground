@@ -1,0 +1,19 @@
+{
+  "name": "@pixel-playground/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.16.0",
+    "superjson": "^2.2.6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.4"
+  }
+}

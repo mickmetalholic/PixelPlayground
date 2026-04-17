@@ -36,4 +36,4 @@ alwaysApply: true
 
 ## 维护
 
-变更类型列表、语言规则或豁免模式时，必须同时更新：`commitlint.config.cjs`、本文件、`contracts/commit-message.contract.md`、`specs/002-commit-convention-workflow/quickstart.md`。
+变更类型列表、语言规则或豁免模式时，必须同时更新：`commitlint.config.cjs`、本文件。
