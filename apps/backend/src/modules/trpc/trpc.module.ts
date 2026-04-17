@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { createHTTPHandler } from '@trpc/server/adapters/standalone';
 import type { NextFunction, Request, Response } from 'express';
-import { AppService } from '../app.service';
+import { AppService } from '../../app.service';
 import { createNestTrpcContext } from './trpc.context';
 import { appRouter } from './trpc.router';
 
