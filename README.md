@@ -1,7 +1,7 @@
 # Pixel Playground
 
 [![CI](https://img.shields.io/github/actions/workflow/status/mickmetalholic/PixelPlayground/ci.yml?branch=main&style=flat&label=ci)](https://github.com/mickmetalholic/PixelPlayground/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/mickmetalholic/PixelPlayground/main?style=flat&logo=codecov)](https://codecov.io/gh/mickmetalholic/PixelPlayground)
+[![codecov](https://codecov.io/gh/mickmetalholic/PixelPlayground/graph/badge.svg?token=JYL5Y7LR9S)](https://codecov.io/gh/mickmetalholic/PixelPlayground)
 [![License](https://img.shields.io/badge/license-unlicensed-lightgrey?style=flat)](https://github.com/mickmetalholic/PixelPlayground)
 
 ## Runtime & Tooling
