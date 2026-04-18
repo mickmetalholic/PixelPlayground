@@ -1,0 +1,8 @@
+name: frontend-playground-dependencies
+status: proposed
+createdAt: 2026-04-17
+owner: codex
+artifacts:
+  - proposal
+  - design
+  - tasks
