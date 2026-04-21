@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "langgraphjs dev",
     "build": "tsc",
-    "lint": "biome check .",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.test\\.ts$ --testPathIgnorePatterns=\\.int\\.test\\.ts$",
     "test:int": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.int\\.test\\.ts$",
     "lint:langgraph-json": "node scripts/checkLanggraphPaths.js"
