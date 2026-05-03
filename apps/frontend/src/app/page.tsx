@@ -1,26 +1,5 @@
-'use client';
-
-import { trpc } from '@/trpc/client';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  const summaryQuery = trpc.home.summary.useQuery(undefined);
-
-  if (summaryQuery.isLoading) {
-    return <main className="p-8">Loading...</main>;
-  }
-
-  if (summaryQuery.error) {
-    return (
-      <main className="p-8 text-red-600">{summaryQuery.error.message}</main>
-    );
-  }
-
-  const summary = summaryQuery.data?.summary ?? '';
-
-  return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Pixel Playground - tRPC demo</h1>
-      <p className="mt-4">{summary}</p>
-    </main>
-  );
+  redirect('/workspace/data-management/steam-game-metadata');
 }
