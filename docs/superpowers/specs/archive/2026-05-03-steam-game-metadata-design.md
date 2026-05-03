@@ -1,8 +1,10 @@
 # Steam 游戏元信息管理前端与 tRPC BFF - 设计说明
 
-**状态：** 已实现（tRPC）  
+**状态：** 已归档；由 OpenSpec `steam-game-metadata` 能力 spec 继承  
 **日期：** 2026-05-03  
 **范围：** 在现有 `apps/frontend` 工作区中，将 `Steam 游戏元信息管理` 从占位面板升级为只读的 Steam 游戏元信息检索与详情查看界面。第一版使用 `packages/api` 中的共享 tRPC router，并由前端现有 `/api/trpc` BFF 在进程内执行；BFF 使用写死 mock 数据，不在运行时请求真实 Steam、Nest 后端、后端 `/trpc` upstream 或数据库。
+
+**归档备注：** 该设计记录的是最初的前端本地 mock 版本，后续已被后端委托与 collection flow 覆盖。当前行为以 `openspec/specs/steam-game-metadata/spec.md` 为准。
 
 ---
 

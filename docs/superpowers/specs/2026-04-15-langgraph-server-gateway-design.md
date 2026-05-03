@@ -1,8 +1,10 @@
 # LangGraph Server 子项目 + Nest 网关（PostgreSQL）— 设计说明
 
-**状态：** 待审阅  
+**状态：** 基础子项目与 Nest 网关已实现；PostgreSQL 持久化细节待复核  
 **日期：** 2026-04-15  
 **范围：** 在现有 pnpm + Turborepo monorepo 中新增官方 **LangGraph Server** 子项目，并由现有 **`apps/backend`**（Nest）作为统一后端网关。部署场景为内网自用，第一阶段不做鉴权；优先落地会话/状态持久化（PostgreSQL）。
+
+**当前实现备注：** 仓库已包含 `apps/langgraph-server` 与 `apps/backend/src/modules/langgraph-gateway`。本文保留为原始架构记录；涉及官方 LangGraph Server API、PostgreSQL 持久化配置和会话恢复语义的内容，继续以最新官方文档与后续 OpenSpec change 为准。
 
 ---
 

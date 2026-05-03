@@ -1,7 +1,8 @@
 # steam-game-metadata Specification
 
 ## Purpose
-TBD - created by archiving change add-steam-game-metadata-bff. Update Purpose after archive.
+Define the Steam game metadata management workspace, its shared tRPC contract, and the backend-owned Steam metadata repository and collection flow. The capability supports searchable metadata review, detail inspection, seeded in-memory storage, and explicit Steam AppID collection through the Nest backend while keeping browser traffic on the frontend BFF.
+
 ## Requirements
 ### Requirement: Steam metadata workspace
 The system SHALL render a Steam game metadata workspace at `/data-management/steam-game-metadata` using the existing workspace shell navigation and theme, including read/query surfaces and a modal-driven collection action.

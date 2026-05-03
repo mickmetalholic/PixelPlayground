@@ -1,8 +1,10 @@
 # Steam Game Metadata Collector Design
 
-Status: Proposed
+Status: Archived; implemented through OpenSpec change `add-steam-game-metadata-collector`
 Date: 2026-05-03
 Scope: Add a backend-owned Steam appdetails collection flow to the existing Steam game metadata management workspace. The frontend continues to call the frontend BFF through tRPC, while the Nest backend owns Steam API access, normalization, upsert behavior, and the in-memory repository that can later be replaced by MongoDB.
+
+Archive note: This design was superseded by the archived OpenSpec change at `openspec/changes/archive/2026-05-03-add-steam-game-metadata-collector` and the current capability spec at `openspec/specs/steam-game-metadata/spec.md`.
 
 ## Background
 
