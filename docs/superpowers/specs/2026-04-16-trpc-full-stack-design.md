@@ -4,7 +4,7 @@
 **日期：** 2026-04-16  
 **范围：** 在现有 pnpm + Turborepo monorepo 中，将 **前端 → BFF → Nest** 的用例级通信从手写 HTTP 迁移为 **tRPC**，实现端到端类型安全（End-to-End Type Safety）。新增 **`packages/*` 共享契约子项目**（包名以实现为准，下文暂称 **`@pixel-playground/api`**）。浏览器 **仅** 访问同源 Next；Nest **仅** 作为 Next 服务端的内网上游，**不**对浏览器暴露 tRPC。
 
-**与既有文档的关系：** `2026-04-13-frontend-next-bff-design.md` 描述的「Route Handlers + `fetch` 调 Nest」在本里程碑内视为 **被替代**；本 spec 生效后，对外业务能力以 **tRPC** 为主路径，不再新增用例级 REST `route.ts` 作为业务聚合方式（运维/健康检查等极窄例外可在实现计划中单独列出）。
+**与既有文档的关系：** 早期「Route Handlers + `fetch` 调 Nest」BFF 方案在本里程碑内视为 **被替代**；本 spec 生效后，对外业务能力以 **tRPC** 为主路径，不再新增用例级 REST `route.ts` 作为业务聚合方式（运维/健康检查等极窄例外可在实现计划中单独列出）。
 
 ---
 
