@@ -23,6 +23,7 @@ import {
   getSidebarItem,
   workspaceNav,
 } from '@/lib/workspace/config';
+import { SteamMetadataWorkspace } from '../steam-metadata/steam-metadata-workspace';
 
 const sectionIcons = {
   'data-management': Database,
@@ -72,10 +73,11 @@ export function WorkspaceShell({
   const panel =
     workspacePanels[itemSlug as keyof typeof workspacePanels] ??
     workspacePanels['steam-game-metadata'];
+  const isSteamMetadata = itemSlug === 'steam-game-metadata';
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <header className="sticky top-0 z-20 border-b border-border/80 bg-background/90 backdrop-blur">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+      <header className="sticky top-0 z-20 shrink-0 border-b border-border/80 bg-background/90 backdrop-blur">
         <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
           <Link
             href="/data-management/steam-game-metadata"
@@ -130,7 +132,7 @@ export function WorkspaceShell({
         </div>
       </header>
 
-      <div className="flex min-h-[calc(100dvh-73px)] flex-col lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {currentSection && (
           <aside className="border-b border-border/80 bg-card/60 lg:w-72 lg:shrink-0 lg:border-r lg:border-b-0">
             <div className="border-b border-border/70 px-4 py-4 lg:px-5">
@@ -181,63 +183,94 @@ export function WorkspaceShell({
           </aside>
         )}
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-6xl flex-col gap-6">
-            <Card className="overflow-hidden">
-              <div className={cn('h-1.5 bg-gradient-to-r', panel.accent)} />
-              <CardContent className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:p-6">
-                <div>
-                  <Badge variant="muted" className="uppercase">
-                    <Gauge className="size-4 text-accent" aria-hidden="true" />
-                    {panel.eyebrow}
-                  </Badge>
-                  <h1 className="mt-3 text-2xl font-semibold tracking-normal text-foreground sm:text-3xl">
-                    {currentItem?.label ?? panel.title}
-                  </h1>
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                    {panel.description}
-                  </p>
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
-                  {panel.stats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="rounded-lg border border-border bg-muted/45 px-3 py-2"
-                    >
-                      <p className="text-xs text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="mt-1 font-mono text-sm font-semibold">
-                        {stat.value}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <section className="grid gap-4 md:grid-cols-3">
-              {panel.actions.map((action, index) => (
-                <Card
-                  key={action}
-                  className="transition-colors hover:border-accent/50"
-                >
-                  <CardHeader className="p-4">
-                    <Badge variant="outline" className="font-mono">
-                      Step {index + 1}
-                    </Badge>
-                    <CardTitle className="mt-2 text-sm">{action}</CardTitle>
-                    <CardDescription>
-                      使用左侧工具进入对应流程，保持数据、内容和检查项同步推进。
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </section>
+        <main
+          className={cn(
+            'min-w-0 flex-1',
+            isSteamMetadata
+              ? 'min-h-0 overflow-hidden px-2 py-3 sm:px-3 lg:px-4'
+              : 'overflow-auto px-4 py-6 sm:px-6 lg:px-8',
+          )}
+        >
+          <div
+            className={cn(
+              'mx-auto flex flex-col gap-6',
+              isSteamMetadata ? 'h-full min-h-0 max-w-none' : 'max-w-7xl',
+            )}
+          >
+            {isSteamMetadata ? (
+              <SteamMetadataWorkspace />
+            ) : (
+              <PlaceholderWorkspaceContent
+                currentLabel={currentItem?.label}
+                panel={panel}
+              />
+            )}
           </div>
         </main>
       </div>
     </div>
+  );
+}
+
+function PlaceholderWorkspaceContent({
+  currentLabel,
+  panel,
+}: {
+  currentLabel?: string;
+  panel: (typeof workspacePanels)[keyof typeof workspacePanels];
+}) {
+  return (
+    <>
+      <Card className="overflow-hidden">
+        <div className={cn('h-1.5 bg-gradient-to-r', panel.accent)} />
+        <CardContent className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:p-6">
+          <div>
+            <Badge variant="muted" className="uppercase">
+              <Gauge className="size-4 text-accent" aria-hidden="true" />
+              {panel.eyebrow}
+            </Badge>
+            <h1 className="mt-3 text-2xl font-semibold tracking-normal text-foreground sm:text-3xl">
+              {currentLabel ?? panel.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              {panel.description}
+            </p>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            {panel.stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-lg border border-border bg-muted/45 px-3 py-2"
+              >
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
+                <p className="mt-1 font-mono text-sm font-semibold">
+                  {stat.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {panel.actions.map((action, index) => (
+          <Card
+            key={action}
+            className="transition-colors hover:border-accent/50"
+          >
+            <CardHeader className="p-4">
+              <Badge variant="outline" className="font-mono">
+                Step {index + 1}
+              </Badge>
+              <CardTitle className="mt-2 text-sm">{action}</CardTitle>
+              <CardDescription>
+                使用左侧工具进入对应流程，保持数据、内容和检查项同步推进。
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ))}
+      </section>
+    </>
   );
 }

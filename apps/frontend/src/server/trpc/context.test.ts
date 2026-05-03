@@ -1,3 +1,4 @@
+import { appRouter } from '@pixel-playground/api';
 import { describe, expect, it, vi } from 'vitest';
 import { createFrontendTrpcContext } from './context';
 
@@ -14,5 +15,26 @@ describe('createFrontendTrpcContext', () => {
     const ctx = await createFrontendTrpcContext(client as never);
 
     await expect(ctx.services.home.getSummary()).resolves.toBe('Hello World!');
+  });
+
+  it('serves steam metadata through the local BFF context without creating a backend client', async () => {
+    const createBackendClient = vi.fn(() => {
+      throw new Error('Steam metadata should not create a backend tRPC client');
+    });
+    const getNestOrigin = vi.fn(() => 'http://localhost:3001');
+
+    const ctx = await createFrontendTrpcContext(undefined, {
+      createBackendClient: createBackendClient as never,
+      getNestOrigin,
+    });
+    const caller = appRouter.createCaller(ctx);
+
+    const list = await caller.steam.games({ q: '1091500' });
+    const detail = await caller.steam.detail({ steamId: '1091500' });
+
+    expect(list.items[0]?.steamId).toBe('1091500');
+    expect(detail.steamId).toBe('1091500');
+    expect(createBackendClient).not.toHaveBeenCalled();
+    expect(getNestOrigin).not.toHaveBeenCalled();
   });
 });

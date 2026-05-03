@@ -1,0 +1,106 @@
+import { TRPCError } from '@trpc/server';
+import { describe, expect, it, vi } from 'vitest';
+import { appRouter } from './_app.ts';
+
+const baseCtx = {
+  services: { home: { getSummary: vi.fn() } },
+};
+
+describe('steam.games', () => {
+  it('returns all games with default pagination', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({});
+
+    expect(result.items.length).toBeGreaterThanOrEqual(7);
+    expect(result.total).toBeGreaterThanOrEqual(7);
+    expect(result.query).toBe('');
+    expect(result.pageInfo.limit).toBe(20);
+  });
+
+  it('filters by SteamID', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({ q: '1091500' });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].steamId).toBe('1091500');
+  });
+
+  it('filters by English name', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({ q: 'stardew' });
+
+    expect(result.items.length).toBeGreaterThanOrEqual(1);
+    expect(result.items[0].nameEn).toBe('Stardew Valley');
+  });
+
+  it('filters by Chinese name', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({ q: '赛博朋克' });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].nameEn).toBe('Cyberpunk 2077');
+  });
+
+  it('respects limit', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({ limit: 2 });
+
+    expect(result.items).toHaveLength(2);
+    expect(result.pageInfo.hasNextPage).toBe(true);
+  });
+
+  it('returns empty array for non-matching query', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.games({ q: 'zzznonexistent' });
+
+    expect(result.items).toHaveLength(0);
+    expect(result.total).toBe(0);
+  });
+
+  it('validates limit bounds', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    await expect(caller.steam.games({ limit: 0 })).rejects.toThrow(TRPCError);
+    await expect(caller.steam.games({ limit: 101 })).rejects.toThrow(TRPCError);
+  });
+});
+
+describe('steam.detail', () => {
+  it('returns detail for existing SteamID', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.detail({ steamId: '1091500' });
+
+    expect(result.steamId).toBe('1091500');
+    expect(result.nameEn).toBe('Cyberpunk 2077');
+    expect(result.shortDescription).toBeTruthy();
+    expect(result.detailedDescription).toBeTruthy();
+    expect(result.supportedLanguages[0]).toEqual({
+      name: 'English',
+      interface: true,
+      fullAudio: true,
+      subtitles: true,
+    });
+  });
+
+  it('returns detail for Dota 2', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.detail({ steamId: '570' });
+
+    expect(result.nameEn).toBe('Dota 2');
+    expect(result.isFree).toBe(true);
+    expect(result.priceOverview).toBeNull();
+  });
+
+  it('throws NOT_FOUND for unknown SteamID', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    try {
+      await caller.steam.detail({ steamId: 'unknown' });
+      expect.unreachable('Expected TRPCError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TRPCError);
+      expect((error as TRPCError).code).toBe('NOT_FOUND');
+      expect((error as TRPCError).message).toContain('STEAM_GAME_NOT_FOUND');
+    }
+  });
+});

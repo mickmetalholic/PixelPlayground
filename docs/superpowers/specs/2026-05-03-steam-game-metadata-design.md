@@ -1,8 +1,8 @@
-# Steam 游戏元信息管理前端与 BFF — 设计说明
+# Steam 游戏元信息管理前端与 tRPC BFF - 设计说明
 
-**状态：** 待审阅  
+**状态：** 已实现（tRPC）  
 **日期：** 2026-05-03  
-**范围：** 在现有 `apps/frontend` 工作区中，将 `Steam 游戏元信息管理` 从占位面板升级为只读的 Steam 游戏元信息检索与详情查看界面。第一版实现前端与 Next BFF 边界，BFF 使用写死 mock 数据，不在运行时请求真实 Steam 或 Nest 后端。
+**范围：** 在现有 `apps/frontend` 工作区中，将 `Steam 游戏元信息管理` 从占位面板升级为只读的 Steam 游戏元信息检索与详情查看界面。第一版使用 `packages/api` 中的共享 tRPC router，并由前端现有 `/api/trpc` BFF 在进程内执行；BFF 使用写死 mock 数据，不在运行时请求真实 Steam、Nest 后端、后端 `/trpc` upstream 或数据库。
 
 ---
 
@@ -10,9 +10,9 @@
 
 现有首页已经默认跳转到 `/data-management/steam-game-metadata`，工作区导航中也已有 `Steam 游戏元信息管理` 入口，但页面主体仍是占位型操作卡片。
 
-本次目标是把这个入口变成可用的后台工具：展示 Steam 游戏列表，支持按 SteamID、英文名、中文名搜索；点击列表项后，在右侧详情面板展示较完整的游戏元信息。
+本次目标是把这个入口变成可用的后台工具：展示 Steam 游戏列表，支持按 SteamID、英文名、中文名搜索；点击列表项后，在右侧详情面板尽量展示完整游戏元信息。
 
-未来数据量会很大，所以搜索边界应放在 BFF 层，而不是只在浏览器内过滤。
+未来数据量会很大，所以搜索边界应放在共享 API / BFF 层，而不是只在浏览器内过滤。项目已经有 `@pixel-playground/api` 和前端 `/api/trpc` 路由，因此本功能走 tRPC RPC 接口，不新增独立 `/api/steam/*` REST route handlers。
 
 ---
 
@@ -23,10 +23,10 @@
 | 功能范围 | 只读展示与检索，不做编辑、保存、同步任务 |
 | 页面入口 | 继续使用 `/data-management/steam-game-metadata` |
 | 详情打开方式 | 列表 + 右侧详情面板 |
-| 数据层 | Next BFF Route Handlers |
-| 搜索位置 | BFF 服务端搜索，第一版对 mock 数据做内存过滤 |
+| 数据层 | `@pixel-playground/api` 共享 tRPC router，通过前端现有 `/api/trpc` BFF 暴露并在前端服务进程内执行 |
+| 搜索位置 | `steam.games` procedure 层搜索，第一版对 mock 数据做内存过滤 |
 | mock 数据来源 | 从 Steam `appdetails` 抽取后写死在代码中 |
-| 运行时外部调用 | 第一版不运行时调用 Steam，不接真实 Nest 后端 |
+| 运行时外部调用 | 第一版不运行时调用 Steam，不接真实 Nest 后端，不转发到后端 `/trpc` upstream |
 | 中文名策略 | 优先使用简中名称；缺失时 `nameZh` 回退为英文名 |
 | UI 风格 | 专业后台、信息密度高、与现有 Workspace shell 和 shadcn/Tailwind 风格一致 |
 
@@ -44,21 +44,23 @@
 - `271590`
 - `413150`
 
-实现阶段使用 Steam appdetails API 一次性抽取这些记录：
-
-```text
-https://store.steampowered.com/api/appdetails?appids=<steamId>
-```
-
-抽取结果整理为仓库内固定 mock 数据。运行时 BFF 只读取本地 mock 模块，避免页面依赖 Steam API 可用性、网络状态或接口限流。
+实现阶段使用 Steam appdetails API 一次性抽取这些记录，整理为仓库内固定 mock 数据。运行时 tRPC procedures 只读取本地 mock 模块，前端 `/api/trpc` BFF 直接在本进程内返回这些 mock 结果，避免页面依赖 Steam API、Nest 后端、后端 `/trpc` upstream、网络状态或接口限流。
 
 ---
 
-## 4. BFF 契约
+## 4. tRPC 契约
 
 ### 4.1 列表搜索
 
-`GET /api/steam/games?q=&limit=&cursor=`
+`steam.games` query input：
+
+```ts
+interface SteamGamesInput {
+  q?: string;
+  limit?: number;
+  cursor?: string;
+}
+```
 
 返回：
 
@@ -85,16 +87,15 @@ interface SteamGameListResponse {
 
 ### 4.2 详情
 
-`GET /api/steam/games/[steamId]`
-
-返回单个 `SteamGameDetail`。未找到时返回稳定 404 JSON：
+`steam.detail` query input：
 
 ```ts
-interface SteamGameErrorResponse {
-  code: 'STEAM_GAME_NOT_FOUND' | 'STEAM_GAME_QUERY_FAILED';
-  message: string;
+interface SteamGameDetailInput {
+  steamId: string;
 }
 ```
+
+返回单个 `SteamGameDetail`。未找到时抛出稳定 tRPC not-found 错误，错误 code 使用 `STEAM_GAME_NOT_FOUND`。
 
 ---
 
@@ -118,6 +119,7 @@ interface SteamGameSummary {
   platforms: SteamPlatforms;
   metadataStatus: 'ready' | 'fallback';
   sourceLanguageFallback: boolean;
+  lastSyncedAt: string;
 }
 ```
 
@@ -128,36 +130,25 @@ interface SteamGameDetail extends SteamGameSummary {
   shortDescription: string;
   detailedDescription: string;
   categories: string[];
-  supportedLanguages: string;
+  supportedLanguages: SteamSupportedLanguage[];
   recommendations: number | null;
   screenshots: string[];
   storeUrl: string;
-  lastSyncedAt: string;
-}
-```
-
-### 5.3 辅助类型
-
-```ts
-interface SteamPriceOverview {
-  currency: string;
-  initial: number;
-  final: number;
-  discountPercent: number;
-  finalFormatted: string;
 }
 
-interface SteamPlatforms {
-  windows: boolean;
-  mac: boolean;
-  linux: boolean;
+interface SteamSupportedLanguage {
+  name: string;
+  interface: boolean;
+  fullAudio: boolean;
+  subtitles: boolean;
 }
 ```
 
 字段原则：
 
-- 列表响应只返回足够支撑列表展示的信息。
+- 列表响应只返回足够支撑列表展示的信息，包括 `lastSyncedAt`，用于表格展示同步新鲜度。
 - 详情响应返回完整面板所需字段。
+- `supportedLanguages` 使用结构化能力数组，不返回 Steam 原始语言描述字符串；前端可按 Interface、Full audio、Subtitles 展示。
 - `nameZh` 永远有值；无明确简中名时等于 `nameEn`。
 - `sourceLanguageFallback` 用于标记中文名是否从英文回退。
 
@@ -165,152 +156,63 @@ interface SteamPlatforms {
 
 ## 6. 前端体验
 
-### 6.1 页面结构
+页面继续嵌在现有 Workspace shell 中，主内容替换原占位卡片，展示 Steam 元信息管理工作台。
 
-页面继续嵌在现有 Workspace shell 中：
+Steam 元信息工作台应尽量使用 Workspace shell 中可用的完整内容宽度，不再被通用占位页的窄 `max-width` 限制。桌面视口下，页面本身不应成为主要滚动面；列表和详情面板分别使用内部滚动容器，滚动条保持细、轻、不挤占主要水平空间。
 
-- 顶部：沿用现有 PixelPlayground header 与工作区一级导航。
-- 左侧：沿用现有 Workspace sidebar。
-- 主内容：替换原占位卡片，展示 Steam 元信息管理工作台。
+列表展示：
 
-主内容采用后台数据工作台布局：
-
-- 标题区：页面标题、记录数、BFF search/mock source 状态。
-- 搜索区：搜索输入，支持 SteamID、英文名、中文名。
-- 列表区：表格语义呈现游戏摘要。
-- 详情区：右侧固定详情面板，展示当前选中游戏的完整信息。
-
-### 6.2 列表
-
-列表展示关键字段：
-
-- 封面缩略图
-- 英文名
-- 中文名
-- SteamID
-- 元信息状态
-- 发布日期
-- 开发商/发行商简要信息
-- 价格或免费状态
-
-行交互：
-
-- hover 有边框或背景反馈。
-- 当前选中行有明确 selected 状态。
-- 点击行更新右侧详情。
-- 键盘 focus 可见。
-- 所有可点击元素使用 `cursor-pointer`。
-
-### 6.3 详情面板
+- 完整 capsule 缩略图，不裁切关键画面。
+- 游戏名合并列：英文名在上，中文名在下，并做视觉层级区分。
+- SteamID、发布日期、开发商/发行商、价格或免费状态。
+- 平台 icon。
+- `lastSyncedAt` 同步新鲜度状态，按时间长短显示不同颜色。
 
 详情面板展示：
 
-- header image
-- capsule image
-- `nameEn` / `nameZh`
-- SteamID
-- 开发商、发行商
-- 发布日期
-- 价格
-- 平台
-- 类型、分类
-- 推荐数
-- 简介与详细描述
-- 截图缩略图
-- Steam 商店链接
-- `lastSyncedAt`
-- 中文名 fallback 状态
+- header image、完整 capsule image。
+- `nameEn` / `nameZh`、SteamID、metadata status、fallback 状态。
+- 开发商、发行商、发布日期、推荐数、`lastSyncedAt`。
+- 价格及原价、现价、折扣、货币等内部字段。
+- 平台 icon 与平台文本。
+- genres、categories、supported languages 完整内容。
+- short/detailed description、screenshots、Steam 商店链接。
 
-长文本默认保持可读，不让卡片过度拉伸。详情面板中的详细描述使用限制高度加内部滚动的方式展示，且不得遮挡后续内容。
-
-### 6.4 搜索状态
-
-- 输入 debounce 后请求 BFF 列表接口。
-- 搜索词同步到 URL query，刷新后保留搜索上下文。
-- loading 时保留旧列表，并显示轻量加载状态。
-- 空结果展示清晰空状态。
-- BFF 错误展示错误面板和重试按钮。
-- 首次进入默认选中第一条结果。
-- 搜索结果变化后，如果当前选中项不在结果中，则选中第一条结果；如果没有结果，则详情面板显示空状态。
+长文本默认保持可读，不让卡片过度拉伸。短描述和详细描述都使用有边界的阅读容器；内容较长时使用限制高度加内部滚动的方式展示，但滚动条应细且不明显，不挤占主要水平空间。截图区域优先使用换行网格展示，避免横向滚动条。
 
 ---
 
-## 7. UI 设计系统约束
-
-使用 `ui-ux-pro-max` 检索结果作为 UI 约束：
-
-- 采用 Data-Dense Dashboard 风格。
-- 使用表格/列表表达结构化数据，避免把表格内容做成松散卡片墙。
-- 使用紧凑但清晰的间距，优先提升信息可扫读性。
-- 沿用现有 `background`、`card`、`border`、`muted`、`primary`、`accent` 主题 token。
-- 粉色和青色只作为状态、选中、重点信息点缀。
-- 使用 lucide icons，不使用 emoji 作为 UI 图标。
-- hover、focus、selected 状态稳定，不引发布局位移。
-- 兼容浅色/深色模式。
-- 移动端改为单列：列表在上，详情在下或通过锚点展示；不得产生水平滚动。
-
----
-
-## 8. 文件组织边界
-
-实现计划可以在不改变边界的前提下微调文件名；模块职责按以下结构拆分：
+## 7. 文件组织边界
 
 ```text
-apps/frontend/src/app/api/steam/games/route.ts
-apps/frontend/src/app/api/steam/games/[steamId]/route.ts
-apps/frontend/src/lib/steam/steam-game.types.ts
-apps/frontend/src/lib/steam/steam-game.mock.ts
-apps/frontend/src/lib/steam/steam-game-search.ts
+packages/api/src/routers/steam.ts
+packages/api/src/steam/steam-game.types.ts
+packages/api/src/steam/steam-game.mock.ts
+packages/api/src/steam/steam-game-search.ts
 apps/frontend/src/components/steam-metadata/steam-metadata-workspace.tsx
 apps/frontend/src/components/steam-metadata/steam-game-table.tsx
 apps/frontend/src/components/steam-metadata/steam-game-detail-panel.tsx
 ```
 
-现有 `WorkspaceShell` 不应继续硬编码所有页面主体。`steam-game-metadata` 渲染专门的工作台组件；其他尚未实现的工作区条目继续显示现有占位展示。
+`packages/api/src/routers/_app.ts` 注册 `steam` router，使前端可通过现有 `/api/trpc` 访问。第一版的 `/api/trpc` BFF 必须在前端服务进程内执行 `steam.games` / `steam.detail`，直接返回 mock 数据，不创建 Nest backend client，不转发到后端 `/trpc`。第一版不保留 `apps/frontend/src/app/api/steam/*` 专用 route handlers，除非未来明确需要 REST 兼容。
 
 ---
 
-## 9. 错误处理
+## 8. 测试策略
 
-BFF：
+优先覆盖 `packages/api` 和纯函数：
 
-- 参数非法时返回 400 稳定 JSON。
-- 详情 SteamID 不存在时返回 404 稳定 JSON。
-- 内部处理失败时返回 500 稳定 JSON。
-- 不向客户端返回堆栈或本地路径。
-
-前端：
-
-- 列表请求失败：主列表区域显示错误和重试。
-- 详情请求失败：详情面板显示错误和重试。
-- 详情 404：显示未找到游戏。
-- 图片加载失败：保留稳定占位，避免布局跳动。
-
----
-
-## 10. 测试策略
-
-优先覆盖 BFF 和纯函数：
-
-- SteamID 搜索命中。
-- 英文名搜索命中。
-- 中文名搜索命中。
-- 空搜索返回默认列表。
-- `limit` 限制生效。
-- cursor/pageInfo 形状稳定。
-- 详情接口存在时返回详情。
-- 详情接口不存在时返回 404 JSON。
+- SteamID、英文名、中文名搜索。
+- 空搜索、`limit`、cursor/pageInfo。
+- `steam.detail` 成功与 typed not-found。
 - 中文名缺失时回退英文名。
 
-前端测试可先保持轻量，覆盖：
-
-- 搜索参数构造。
-- 空结果状态。
-- 选中项不在结果中时回退到第一条。
+前端测试保持轻量，覆盖 tRPC query input、空结果状态、选中项回退等行为。
 
 验证命令优先级：
 
 ```text
+pnpm --filter @pixel-playground/api test
 pnpm --filter @pixel-playground/frontend test
 pnpm lint
 pnpm build
@@ -318,26 +220,28 @@ pnpm build
 
 ---
 
-## 11. 非目标
+## 9. 非目标
 
 - 不做数据编辑。
 - 不做数据持久化。
 - 不做真实 Steam 同步任务。
-- 不接 Nest 后端或数据库。
+- 不接 Nest 后端、后端 `/trpc` upstream 或数据库。
 - 不做认证、权限、审计。
 - 不做批量操作、导入导出或队列监控。
+- 不新增独立 `/api/steam/*` REST contract。
 
 ---
 
-## 12. 验收标准
+## 10. 验收标准
 
 1. `/data-management/steam-game-metadata` 展示 Steam 游戏元信息工作台，而不是原占位面板。
 2. 列表展示 7 个 mock Steam 游戏。
 3. 搜索支持 SteamID、英文名、中文名。
-4. 搜索由 BFF route handler 执行，浏览器不直接 import mock 数据进行全量过滤。
-5. 点击列表项后，右侧详情面板展示完整元信息。
-6. BFF 列表和详情接口具有稳定响应契约。
-7. 中文名缺失时回退英文名。
-8. UI 保持专业后台风格，与现有 Workspace shell 一致。
-9. loading、空结果、错误、详情 404 状态有明确展示。
-10. 相关测试通过，至少覆盖 BFF 搜索和详情核心路径。
+4. 搜索由 `steam.games` tRPC procedure 执行，浏览器不直接 import mock 数据进行全量过滤。
+5. `steam.games` 和 `steam.detail` 由前端 `/api/trpc` BFF 在本进程内直接读取 mock 数据返回，不依赖 Nest 服务是否启动。
+6. 点击列表项后，右侧详情面板通过 `steam.detail` 尽量展示完整元信息。
+7. 共享 tRPC 列表和详情接口具有稳定响应契约。
+8. 中文名缺失时回退英文名。
+9. UI 保持专业后台风格，与现有 Workspace shell 一致。
+10. loading、空结果、错误、详情 not found 状态有明确展示。
+11. 相关测试通过，至少覆盖 `packages/api` 搜索和详情核心路径。
