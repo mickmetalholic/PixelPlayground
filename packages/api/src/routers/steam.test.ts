@@ -100,7 +100,96 @@ describe('steam.detail', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(TRPCError);
       expect((error as TRPCError).code).toBe('NOT_FOUND');
-      expect((error as TRPCError).message).toContain('STEAM_GAME_NOT_FOUND');
+      expect((error as TRPCError).message).toContain('STEAM_UNKNOWN_DETAIL');
     }
+  });
+});
+
+describe('steam.collect', () => {
+  it('rejects blank steamId', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    await expect(caller.steam.collect({ steamId: '' })).rejects.toThrow(
+      TRPCError,
+    );
+  });
+
+  it('rejects non-numeric steamId', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    await expect(caller.steam.collect({ steamId: 'abc' })).rejects.toThrow(
+      TRPCError,
+    );
+    await expect(caller.steam.collect({ steamId: '1091500a' })).rejects.toThrow(
+      TRPCError,
+    );
+  });
+
+  it('rejects collect when steam service is not available', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    try {
+      await caller.steam.collect({ steamId: '1091500' });
+      expect.unreachable('Expected TRPCError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TRPCError);
+      expect((error as TRPCError).code).toBe('INTERNAL_SERVER_ERROR');
+    }
+  });
+
+  it('delegates to steam service when available', async () => {
+    const mockService = {
+      getGames: vi.fn(),
+      getDetail: vi.fn(),
+      collect: vi.fn().mockResolvedValue({ steamId: '1091500' }),
+    };
+
+    const ctx = {
+      services: { home: { getSummary: vi.fn() }, steam: mockService },
+    };
+
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.steam.collect({ steamId: '1091500' });
+
+    expect(result.steamId).toBe('1091500');
+    expect(mockService.collect).toHaveBeenCalledWith('1091500');
+  });
+
+  it('delegates list and detail to steam service when available', async () => {
+    const mockService = {
+      getGames: vi.fn().mockResolvedValue({
+        items: [],
+        pageInfo: { limit: 20, hasNextPage: false, nextCursor: null },
+        query: '',
+        total: 0,
+      }),
+      getDetail: vi
+        .fn()
+        .mockRejectedValue(
+          new TRPCError({ code: 'NOT_FOUND', message: 'STEAM_GAME_NOT_FOUND' }),
+        ),
+      collect: vi.fn(),
+    };
+
+    const ctx = {
+      services: { home: { getSummary: vi.fn() }, steam: mockService },
+    };
+
+    const caller = appRouter.createCaller(ctx);
+    const gamesResult = await caller.steam.games({ q: 'stardew' });
+
+    expect(gamesResult.total).toBe(0);
+    expect(mockService.getGames).toHaveBeenCalledWith({
+      q: 'stardew',
+      limit: 20,
+      cursor: undefined,
+    });
+
+    await expect(
+      caller.steam.detail({ steamId: 'unknown' }),
+    ).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    expect(mockService.getDetail).toHaveBeenCalledWith('unknown');
   });
 });

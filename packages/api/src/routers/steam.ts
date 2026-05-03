@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { getAllGames } from '../steam/steam-game.mock.ts';
 import type { SteamGameSummary } from '../steam/steam-game.types.ts';
+import { SteamErrorCode } from '../steam/steam-game.types.ts';
 import {
   findGameById,
   paginateGames,
@@ -18,6 +19,13 @@ const gamesInputSchema = z.object({
 
 const detailInputSchema = z.object({
   steamId: z.string().min(1, 'steamId is required'),
+});
+
+const collectInputSchema = z.object({
+  steamId: z
+    .string()
+    .min(1, 'steamId is required')
+    .regex(/^\d+$/, 'steamId must be a numeric string'),
 });
 
 function toSummary(game: {
@@ -57,31 +65,56 @@ function toSummary(game: {
 }
 
 export const steamRouter = createRouter({
-  games: publicProcedure.input(gamesInputSchema).query(async ({ input }) => {
-    const allGames = getAllGames();
-    const limit = parseLimit(input.limit);
-    const summaries = allGames.map(toSummary);
-    const filtered = searchGames(summaries, input.q);
-    const { items, pageInfo, total } = paginateGames(
-      filtered,
-      limit,
-      input.cursor ?? null,
-    );
+  games: publicProcedure
+    .input(gamesInputSchema)
+    .query(async ({ ctx, input }) => {
+      if (ctx.services.steam) {
+        return ctx.services.steam.getGames(input);
+      }
 
-    return { items, pageInfo, query: input.q, total };
-  }),
+      const allGames = getAllGames();
+      const limit = parseLimit(input.limit);
+      const summaries = allGames.map(toSummary);
+      const filtered = searchGames(summaries, input.q);
+      const { items, pageInfo, total } = paginateGames(
+        filtered,
+        limit,
+        input.cursor ?? null,
+      );
 
-  detail: publicProcedure.input(detailInputSchema).query(async ({ input }) => {
-    const allGames = getAllGames();
-    const game = findGameById(allGames, input.steamId);
+      return { items, pageInfo, query: input.q, total };
+    }),
 
-    if (!game) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: `STEAM_GAME_NOT_FOUND: Steam game with ID "${input.steamId}" was not found.`,
-      });
-    }
+  detail: publicProcedure
+    .input(detailInputSchema)
+    .query(async ({ ctx, input }) => {
+      if (ctx.services.steam) {
+        return ctx.services.steam.getDetail(input.steamId);
+      }
 
-    return game;
-  }),
+      const allGames = getAllGames();
+      const game = findGameById(allGames, input.steamId);
+
+      if (!game) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `${SteamErrorCode.UNKNOWN_DETAIL}: Steam game with ID "${input.steamId}" was not found.`,
+        });
+      }
+
+      return game;
+    }),
+
+  collect: publicProcedure
+    .input(collectInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.services.steam) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `${SteamErrorCode.UPSTREAM_FAILURE}: Steam collection is not available in this context.`,
+        });
+      }
+
+      return ctx.services.steam.collect(input.steamId);
+    }),
 });

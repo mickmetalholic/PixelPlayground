@@ -1,12 +1,23 @@
 'use client';
 
-import { AlertCircle, Gamepad2, Loader2, Search, X } from 'lucide-react';
+import {
+  AlertCircle,
+  Database,
+  Gamepad2,
+  Loader2,
+  Plus,
+  Search,
+  Server,
+  X,
+} from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
+import { Dialog } from '../ui/dialog';
 import { DetailPanel } from './steam-game-detail-panel';
 import { SteamGameTable } from './steam-game-table';
 
@@ -24,6 +35,9 @@ export function SteamMetadataWorkspace() {
   const [activeQuery, setActiveQuery] = useState(initialQuery);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [collectOpen, setCollectOpen] = useState(false);
+  const [collectInput, setCollectInput] = useState('');
+  const [collectError, setCollectError] = useState<string | null>(null);
 
   // Sync searchInput -> activeQuery with debounce
   useEffect(() => {
@@ -58,6 +72,20 @@ export function SteamMetadataWorkspace() {
 
   const items = listData?.items ?? [];
   const total = listData?.total ?? 0;
+
+  // tRPC mutation for collect
+  const collectMutation = trpc.steam.collect.useMutation({
+    onSuccess: (data) => {
+      setCollectOpen(false);
+      setCollectInput('');
+      setCollectError(null);
+      refetchList();
+      setSelectedId(data.steamId);
+    },
+    onError: (err) => {
+      setCollectError(err.message);
+    },
+  });
 
   // Select first item by default or handle selection removal
   useEffect(() => {
@@ -107,6 +135,29 @@ export function SteamMetadataWorkspace() {
     setSearchInput('');
   }, []);
 
+  const handleOpenCollect = useCallback(() => {
+    setCollectInput('');
+    setCollectError(null);
+    setCollectOpen(true);
+  }, []);
+
+  const handleCollectSubmit = useCallback(() => {
+    const trimmed = collectInput.trim();
+
+    if (!trimmed) {
+      setCollectError('Please enter a Steam AppID.');
+      return;
+    }
+
+    if (!/^\d+$/.test(trimmed)) {
+      setCollectError('AppID must be a numeric value (e.g., 1091500).');
+      return;
+    }
+
+    setCollectError(null);
+    collectMutation.mutate({ steamId: trimmed });
+  }, [collectInput, collectMutation]);
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
       {/* Header area */}
@@ -117,16 +168,27 @@ export function SteamMetadataWorkspace() {
             <p className="text-xs text-muted-foreground">
               {total > 0
                 ? `${total} game${total !== 1 ? 's' : ''} indexed`
-                : 'Mock data source — tRPC backed'}
+                : 'Backend in-memory repository — Steam API sync'}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-[10px]">
-              Mock source
+              <Database className="mr-1 inline size-3" />
+              In-memory
             </Badge>
             <Badge variant="outline" className="text-[10px]">
-              tRPC search
+              <Server className="mr-1 inline size-3" />
+              Steam API sync
             </Badge>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleOpenCollect}
+              className="gap-1.5 text-xs"
+            >
+              <Plus className="size-3.5" />
+              Collect
+            </Button>
           </div>
         </div>
       </div>
@@ -234,6 +296,76 @@ export function SteamMetadataWorkspace() {
           </div>
         )}
       </div>
+
+      {/* Collection modal */}
+      <Dialog
+        open={collectOpen}
+        onOpenChange={(open) => {
+          if (!open && !collectMutation.isPending) {
+            setCollectOpen(false);
+            setCollectError(null);
+          }
+        }}
+        title="Collect Steam Game"
+      >
+        <div className="flex flex-col gap-4">
+          <div>
+            <label
+              htmlFor="steam-appid"
+              className="mb-1.5 block text-sm font-medium text-foreground"
+            >
+              Steam AppID
+            </label>
+            <Input
+              id="steam-appid"
+              value={collectInput}
+              onChange={(e) => {
+                setCollectInput(e.target.value);
+                if (collectError) setCollectError(null);
+              }}
+              placeholder="e.g. 1091500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !collectMutation.isPending) {
+                  handleCollectSubmit();
+                }
+              }}
+              autoFocus
+            />
+            {collectError && (
+              <p className="mt-1.5 text-xs text-destructive">{collectError}</p>
+            )}
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCollectOpen(false);
+                setCollectError(null);
+              }}
+              disabled={collectMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleCollectSubmit}
+              disabled={collectMutation.isPending}
+              className="gap-1.5"
+            >
+              {collectMutation.isPending ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Collecting...
+                </>
+              ) : (
+                'Collect'
+              )}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

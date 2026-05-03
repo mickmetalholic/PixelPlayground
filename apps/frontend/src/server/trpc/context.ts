@@ -1,7 +1,12 @@
-import type { AppContext, AppRouter } from '@pixel-playground/api';
+import type {
+  AppContext,
+  AppRouter,
+  SteamServicePort,
+} from '@pixel-playground/api';
 import type { TRPCClient } from '@trpc/client';
 import { getNestOriginFromEnv } from '@/lib/nest/nest-origin';
 import { createBackendTrpcClient } from './backend-client';
+import { SteamMetadataBffClient } from './steam-bff-client';
 
 type BackendClientFactory = (nestOrigin: string) => TRPCClient<AppRouter>;
 
@@ -9,6 +14,31 @@ type FrontendTrpcContextOptions = {
   createBackendClient?: BackendClientFactory;
   getNestOrigin?: () => string;
 };
+
+function createLazySteamService(
+  getNestOrigin: () => string,
+): SteamServicePort | undefined {
+  let client: SteamMetadataBffClient | undefined;
+
+  function getClient(): SteamMetadataBffClient {
+    if (!client) {
+      client = new SteamMetadataBffClient(getNestOrigin());
+    }
+    return client;
+  }
+
+  try {
+    getNestOrigin();
+  } catch {
+    return undefined;
+  }
+
+  return {
+    getGames: (params) => getClient().getGames(params),
+    getDetail: (steamId) => getClient().getDetail(steamId),
+    collect: (steamId) => getClient().collect(steamId),
+  };
+}
 
 export async function createFrontendTrpcContext(
   client?: TRPCClient<AppRouter>,
@@ -32,6 +62,7 @@ export async function createFrontendTrpcContext(
           return result.summary;
         },
       },
+      steam: createLazySteamService(getNestOrigin),
     },
   };
 }

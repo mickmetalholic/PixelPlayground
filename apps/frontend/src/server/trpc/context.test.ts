@@ -17,11 +17,13 @@ describe('createFrontendTrpcContext', () => {
     await expect(ctx.services.home.getSummary()).resolves.toBe('Hello World!');
   });
 
-  it('serves steam metadata through the local BFF context without creating a backend client', async () => {
+  it('falls back to mock data when NEST_ORIGIN is not available', async () => {
     const createBackendClient = vi.fn(() => {
       throw new Error('Steam metadata should not create a backend tRPC client');
     });
-    const getNestOrigin = vi.fn(() => 'http://localhost:3001');
+    const getNestOrigin = vi.fn(() => {
+      throw new Error('NEST_ORIGIN is not set');
+    });
 
     const ctx = await createFrontendTrpcContext(undefined, {
       createBackendClient: createBackendClient as never,
@@ -35,6 +37,5 @@ describe('createFrontendTrpcContext', () => {
     expect(list.items[0]?.steamId).toBe('1091500');
     expect(detail.steamId).toBe('1091500');
     expect(createBackendClient).not.toHaveBeenCalled();
-    expect(getNestOrigin).not.toHaveBeenCalled();
   });
 });
