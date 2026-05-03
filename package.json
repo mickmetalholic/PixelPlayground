@@ -9,6 +9,10 @@
     "test:cov": "turbo run test:cov",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "spec:list": "openspec list",
+    "spec:status": "openspec status",
+    "spec:validate": "openspec validate --all",
+    "spec:update": "openspec update",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -3,21 +3,28 @@ instructions:
   - "All proposal.md, tasks.md, spec.md, and design.md content must be written in English."
   - "Keep code identifiers, file names, and API names unchanged."
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  PixelPlayground is a pnpm/Turborepo TypeScript monorepo.
+  Runtime is Node.js 24.x with pnpm 9.15.9.
+  The repo contains a Next.js frontend, NestJS backend, LangGraph server, and shared tRPC API package.
+  Biome is the root linting and formatting tool.
+  Prefer small, testable changes that preserve existing package boundaries and public contracts.
+  Durable Superpowers-style specs live in docs/superpowers/specs.
+  Durable Superpowers-style implementation plans live in docs/superpowers/plans.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - State the user-facing goal and repository-facing motivation.
+    - Include non-goals when the scope could reasonably expand.
+    - Identify affected apps, packages, or docs.
+  design:
+    - Describe cross-package contracts, data flow, and failure modes when relevant.
+    - Call out test strategy and migration or compatibility concerns.
+    - Reference existing Superpowers specs when they already cover the area.
+  specs:
+    - Use requirement language with observable behavior.
+    - Include at least one concrete scenario per new or changed requirement.
+  tasks:
+    - Break implementation into reviewable slices.
+    - Include verification commands for each major slice.
+    - Include documentation or spec follow-up tasks when behavior or contracts change.
