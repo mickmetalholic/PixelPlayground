@@ -2,6 +2,8 @@
 
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { createPlaygroundExtensions } from '@/lib/editor/tiptap-extensions';
 
 export default function PlaygroundEditorPage() {
@@ -16,26 +18,28 @@ export default function PlaygroundEditorPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Editor Demo</h2>
-      <div className="rounded border p-3">
-        <EditorContent editor={editor} />
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <EditorContent editor={editor} />
+        </CardContent>
+      </Card>
       <div className="flex gap-3">
-        <button
-          className="rounded border px-3 py-1"
+        <Button
           onClick={() => editor?.chain().focus().toggleBold().run()}
           type="button"
+          variant="outline"
         >
           Bold
-        </button>
-        <button
-          className="rounded border px-3 py-1"
+        </Button>
+        <Button
           onClick={() => editor?.chain().focus().toggleItalic().run()}
           type="button"
+          variant="outline"
         >
           Italic
-        </button>
+        </Button>
       </div>
-      <pre className="rounded border p-3 text-xs">
+      <pre className="rounded-lg border border-border bg-muted/50 p-3 text-xs">
         {JSON.stringify(serialized, null, 2)}
       </pre>
     </div>

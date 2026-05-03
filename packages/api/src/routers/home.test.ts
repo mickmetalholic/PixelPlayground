@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { describe, expect, it, vi } from 'vitest';
-import { appRouter } from '../index.js';
+import { appRouter } from '../index';
 
 describe('home.summary procedure', () => {
   it('returns summary from service port', async () => {

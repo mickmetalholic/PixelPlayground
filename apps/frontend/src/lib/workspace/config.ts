@@ -25,7 +25,7 @@ export const workspaceNav: WorkspaceNavConfig = {
         {
           slug: 'steam-game-metadata',
           label: 'Steam 游戏元信息管理',
-          href: '/workspace/data-management/steam-game-metadata',
+          href: '/data-management/steam-game-metadata',
         },
       ],
     },
@@ -37,7 +37,7 @@ export const workspaceNav: WorkspaceNavConfig = {
         {
           slug: 'steam-daily-discounts',
           label: 'Steam 每日折扣',
-          href: '/workspace/content-production/steam-daily-discounts',
+          href: '/content-production/steam-daily-discounts',
         },
       ],
     },

@@ -4,6 +4,9 @@ import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { markdownComponents } from '@/lib/markdown/markdown-components';
 
 const initialMarkdown = `# Markdown Demo
@@ -24,21 +27,29 @@ export default function PlaygroundMarkdownPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Markdown Demo</h2>
-      <textarea
-        value={markdown}
-        onChange={(event) => setMarkdown(event.target.value)}
-        rows={10}
-        className="w-full rounded border p-3 font-mono text-sm"
-      />
-      <article className="prose dark:prose-invert max-w-none rounded border p-4">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeHighlight]}
-          components={markdownComponents}
-        >
-          {rendered}
-        </ReactMarkdown>
-      </article>
+      <div className="space-y-2">
+        <Label htmlFor="markdown-input">Source</Label>
+        <Textarea
+          id="markdown-input"
+          value={markdown}
+          onChange={(event) => setMarkdown(event.target.value)}
+          rows={10}
+          className="font-mono"
+        />
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <article className="prose dark:prose-invert max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={markdownComponents}
+            >
+              {rendered}
+            </ReactMarkdown>
+          </article>
+        </CardContent>
+      </Card>
     </div>
   );
 }

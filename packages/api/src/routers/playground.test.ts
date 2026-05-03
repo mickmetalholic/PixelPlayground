@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { appRouter } from '../index.js';
+import { appRouter } from '../index';
 
 describe('playground procedures', () => {
   const baseCtx = {

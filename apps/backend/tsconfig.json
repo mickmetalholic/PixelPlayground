@@ -2,6 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,

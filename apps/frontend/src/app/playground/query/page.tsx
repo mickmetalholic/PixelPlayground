@@ -1,5 +1,8 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { trpc } from '@/trpc/client';
 
 export default function PlaygroundQueryPage() {
@@ -8,25 +11,32 @@ export default function PlaygroundQueryPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Query Demo</h2>
-      {query.isLoading && <p>Loading todo preview...</p>}
+      {query.isLoading && (
+        <Badge variant="muted">Loading todo preview...</Badge>
+      )}
       {query.isError && (
-        <div className="space-y-2 text-red-600">
-          <p>{query.error.message}</p>
-          <button
-            type="button"
-            className="underline"
-            onClick={() => query.refetch()}
-          >
-            Retry
-          </button>
-        </div>
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="space-y-3 p-4">
+            <p className="text-sm text-destructive">{query.error.message}</p>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => query.refetch()}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       )}
       {query.data && (
-        <div className="rounded border p-3">
-          <p>ID: {query.data.id}</p>
-          <p>Title: {query.data.title}</p>
-          <p>Status: {query.data.completed ? 'completed' : 'pending'}</p>
-        </div>
+        <Card>
+          <CardContent className="grid gap-2 p-4 text-sm">
+            <p>ID: {query.data.id}</p>
+            <p>Title: {query.data.title}</p>
+            <p>Status: {query.data.completed ? 'completed' : 'pending'}</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

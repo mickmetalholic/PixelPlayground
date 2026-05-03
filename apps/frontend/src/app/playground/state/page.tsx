@@ -1,5 +1,7 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { usePlaygroundStore } from '@/lib/state/playground.store';
 
 export default function PlaygroundStatePage() {
@@ -10,22 +12,14 @@ export default function PlaygroundStatePage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">State Demo</h2>
-      <p>Count: {count}</p>
+      <Badge variant="secondary">Count: {count}</Badge>
       <div className="flex gap-4">
-        <button
-          type="button"
-          className="rounded border px-3 py-1"
-          onClick={increment}
-        >
+        <Button type="button" onClick={increment}>
           Increment
-        </button>
-        <button
-          type="button"
-          className="rounded border px-3 py-1"
-          onClick={reset}
-        >
+        </Button>
+        <Button type="button" variant="outline" onClick={reset}>
           Reset
-        </button>
+        </Button>
       </div>
     </div>
   );

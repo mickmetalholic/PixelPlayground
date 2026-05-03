@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { normalizeAiError } from '@/lib/ai/playground-ai-client';
 import { trpc } from '@/trpc/client';
 
@@ -13,27 +17,35 @@ export default function PlaygroundAiPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">AI Demo</h2>
-      <textarea
-        className="w-full rounded border p-3"
-        rows={4}
-        value={prompt}
-        onChange={(event) => setPrompt(event.target.value)}
-      />
-      <button
+      <div className="space-y-2">
+        <Label htmlFor="ai-prompt">Prompt</Label>
+        <Textarea
+          id="ai-prompt"
+          rows={4}
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+        />
+      </div>
+      <Button
         type="button"
-        className="rounded border px-3 py-1"
         onClick={() => mutation.mutate({ prompt })}
         disabled={mutation.isPending}
       >
         {mutation.isPending ? 'Requesting...' : 'Send'}
-      </button>
+      </Button>
       {mutation.data && (
-        <p className="rounded border p-3">{mutation.data.output}</p>
+        <Card>
+          <CardContent className="p-4 text-sm leading-6">
+            {mutation.data.output}
+          </CardContent>
+        </Card>
       )}
       {mutation.error && (
-        <p className="rounded border border-red-500 p-3 text-red-600">
-          {normalizeAiError(mutation.error)}
-        </p>
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="p-4 text-sm text-destructive">
+            {normalizeAiError(mutation.error)}
+          </CardContent>
+        </Card>
       )}
     </div>
   );
