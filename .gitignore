@@ -1,6 +1,7 @@
 .worktrees/
 node_modules/
 .turbo/
+.superpowers/
 dist/
 .next/
 coverage/
