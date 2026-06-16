@@ -105,6 +105,48 @@ describe('steam.detail', () => {
   });
 });
 
+describe('steam.discountEvents', () => {
+  it('returns discount events with joined game summaries', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.discountEvents({});
+
+    expect(result.items).toHaveLength(4);
+    expect(result.total).toBe(4);
+    expect(result.items[0]).toHaveProperty('game');
+    expect(result.items[0].game.steamId).toBeTruthy();
+    expect(result.items[0].game.nameEn).toBeTruthy();
+    expect(result.items[0].game.nameZh).toBeTruthy();
+    expect(result.items[0].game.capsuleImage).toBeTruthy();
+  });
+
+  it('items are sorted by startAt descending', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.discountEvents({});
+
+    for (let i = 1; i < result.items.length; i++) {
+      expect(
+        new Date(result.items[i - 1].startAt).getTime(),
+      ).toBeGreaterThanOrEqual(new Date(result.items[i].startAt).getTime());
+    }
+  });
+
+  it('limit restricts count', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.discountEvents({ limit: 2 });
+
+    expect(result.items).toHaveLength(2);
+    expect(result.pageInfo.hasNextPage).toBe(true);
+  });
+
+  it('orphan event is excluded from results', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+    const result = await caller.steam.discountEvents({});
+
+    const hasOrphan = result.items.some((item) => item.steamId === '999999');
+    expect(hasOrphan).toBe(false);
+  });
+});
+
 describe('steam.collect', () => {
   it('rejects blank steamId', async () => {
     const caller = appRouter.createCaller(baseCtx);

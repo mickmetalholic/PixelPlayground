@@ -27,6 +27,11 @@ export const workspaceNav: WorkspaceNavConfig = {
           label: 'Steam 游戏元信息管理',
           href: '/data-management/steam-game-metadata',
         },
+        {
+          slug: 'game-discount-events',
+          label: 'Game Discount Event 管理',
+          href: '/data-management/game-discount-events',
+        },
       ],
     },
     {

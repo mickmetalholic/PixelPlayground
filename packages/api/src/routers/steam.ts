@@ -1,5 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { getAllDiscountEvents } from '../steam/game-discount-event.mock.ts';
+import { listDiscountEvents } from '../steam/game-discount-event-search.ts';
 import { getAllGames } from '../steam/steam-game.mock.ts';
 import type { SteamGameSummary } from '../steam/steam-game.types.ts';
 import { SteamErrorCode } from '../steam/steam-game.types.ts';
@@ -26,6 +28,11 @@ const collectInputSchema = z.object({
     .string()
     .min(1, 'steamId is required')
     .regex(/^\d+$/, 'steamId must be a numeric string'),
+});
+
+const discountEventsInputSchema = z.object({
+  limit: z.number().int().min(1).max(100).optional().default(20),
+  cursor: z.string().optional(),
 });
 
 function toSummary(game: {
@@ -116,5 +123,13 @@ export const steamRouter = createRouter({
       }
 
       return ctx.services.steam.collect(input.steamId);
+    }),
+
+  discountEvents: publicProcedure
+    .input(discountEventsInputSchema)
+    .query(async ({ input }) => {
+      const allEvents = getAllDiscountEvents();
+      const allGames = getAllGames();
+      return listDiscountEvents(allEvents, allGames, input.limit, input.cursor);
     }),
 });

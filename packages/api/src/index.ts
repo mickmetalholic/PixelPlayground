@@ -6,6 +6,12 @@ export type {
 export type { AppRouter } from './routers/_app.ts';
 export { appRouter } from './routers/_app.ts';
 export type {
+  GameDiscountEvent,
+  GameDiscountEventListItem,
+  GameDiscountEventListResponse,
+  GameDiscountEventType,
+} from './steam/game-discount-event.types.ts';
+export type {
   PageInfo,
   SteamGameDetail,
   SteamGameListResponse,

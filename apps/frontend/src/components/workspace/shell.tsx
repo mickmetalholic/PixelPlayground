@@ -23,6 +23,7 @@ import {
   getSidebarItem,
   workspaceNav,
 } from '@/lib/workspace/config';
+import { GameDiscountEventsWorkspace } from '../game-discount-events/game-discount-events-workspace';
 import { SteamMetadataWorkspace } from '../steam-metadata/steam-metadata-workspace';
 
 const sectionIcons = {
@@ -57,6 +58,18 @@ const workspacePanels = {
     ],
     actions: ['筛选高价值折扣', '生成今日内容摘要', '整理发布检查项'],
   },
+  'game-discount-events': {
+    eyebrow: 'Data Pipeline',
+    title: 'Game Discount Event 管理',
+    description: '查看和管理 Steam 游戏折扣事件，追踪史低价格和促销活动。',
+    accent: 'from-amber-500 to-rose-500',
+    stats: [
+      { label: 'Source', value: 'In-memory' },
+      { label: 'Mode', value: 'Read-only' },
+      { label: 'Events', value: 'Mock' },
+    ],
+    actions: ['查看活跃折扣事件', '识别史低价格游戏', '导出折扣事件报告'],
+  },
 } as const;
 
 export function WorkspaceShell({
@@ -74,6 +87,7 @@ export function WorkspaceShell({
     workspacePanels[itemSlug as keyof typeof workspacePanels] ??
     workspacePanels['steam-game-metadata'];
   const isSteamMetadata = itemSlug === 'steam-game-metadata';
+  const isDiscountEvents = itemSlug === 'game-discount-events';
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -199,6 +213,8 @@ export function WorkspaceShell({
           >
             {isSteamMetadata ? (
               <SteamMetadataWorkspace />
+            ) : isDiscountEvents ? (
+              <GameDiscountEventsWorkspace />
             ) : (
               <PlaceholderWorkspaceContent
                 currentLabel={currentItem?.label}
