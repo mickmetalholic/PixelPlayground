@@ -14,11 +14,11 @@ describe('LanggraphClientRepository', () => {
     process.env.LANGGRAPH_BASE_URL = originalBaseUrl;
     delete process.env.LANGGRAPH_CHAT_PATH;
     delete process.env.LANGGRAPH_TIMEOUT_MS;
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('throws UPSTREAM_TIMEOUT when fetch aborts', async () => {
-    globalThis.fetch = jest
+    globalThis.fetch = vi
       .fn()
       .mockRejectedValue(
         Object.assign(new Error('aborted'), { name: 'AbortError' }),
@@ -39,7 +39,7 @@ describe('LanggraphClientRepository', () => {
   });
 
   it('maps 404 to SESSION_NOT_FOUND', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
       json: async () => ({ message: 'thread not found' }),
@@ -60,7 +60,7 @@ describe('LanggraphClientRepository', () => {
   });
 
   it('returns mapped response when upstream succeeds', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       json: async () => ({

@@ -60,7 +60,7 @@ describe('SteamMetadataService', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('getGames', () => {
@@ -92,7 +92,7 @@ describe('SteamMetadataService', () => {
 
   describe('collect', () => {
     it('throws SteamCollectionNotFoundError when Steam returns success:false', async () => {
-      jest.spyOn(steamClient, 'fetch').mockResolvedValue({ success: false });
+      vi.spyOn(steamClient, 'fetch').mockResolvedValue({ success: false });
 
       await expect(service.collect('999999')).rejects.toThrow(
         SteamCollectionNotFoundError,
@@ -100,9 +100,9 @@ describe('SteamMetadataService', () => {
     });
 
     it('throws SteamAppdetailsTransportError on transport failure', async () => {
-      jest
-        .spyOn(steamClient, 'fetch')
-        .mockRejectedValue(new SteamAppdetailsTransportError('Network error'));
+      vi.spyOn(steamClient, 'fetch').mockRejectedValue(
+        new SteamAppdetailsTransportError('Network error'),
+      );
 
       await expect(service.collect('999999')).rejects.toThrow(
         SteamAppdetailsTransportError,
@@ -110,7 +110,7 @@ describe('SteamMetadataService', () => {
     });
 
     it('normalizes, upserts, and returns a game on successful collection', async () => {
-      jest.spyOn(steamClient, 'fetch').mockResolvedValue({
+      vi.spyOn(steamClient, 'fetch').mockResolvedValue({
         success: true,
         data: { type: 'game', name: 'New Game' },
       });

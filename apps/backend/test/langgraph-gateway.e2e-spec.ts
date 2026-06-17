@@ -10,7 +10,7 @@ describe('LanggraphGatewayController (e2e)', () => {
 
   beforeEach(async () => {
     const repositoryMock: Pick<LanggraphClientRepository, 'invoke'> = {
-      invoke: jest.fn().mockResolvedValue({
+      invoke: vi.fn().mockResolvedValue({
         sessionId: 'session-e2e',
         threadId: 'thread-e2e',
         requestId: 'request-e2e',

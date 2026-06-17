@@ -2,15 +2,15 @@ import { NotFoundException } from '@nestjs/common';
 import { renderTrpcPanel } from 'trpc-panel';
 import { TrpcPanelService } from '../trpc-panel.service';
 
-jest.mock('trpc-panel', () => ({
-  renderTrpcPanel: jest.fn(() => '<html>panel</html>'),
+vi.mock('trpc-panel', () => ({
+  renderTrpcPanel: vi.fn(() => '<html>panel</html>'),
 }));
 
 describe('TrpcPanelService', () => {
   const service = new TrpcPanelService();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('throws NotFoundException when panel is disabled', () => {

@@ -29,7 +29,7 @@ packages/
 - **Runtime**: Node 24.15.0, pnpm 9.15.9
 - **Language**: TypeScript 5.x (strict mode, NodeNext module)
 - **Lint/Format**: Biome 2.4.11 (2-space indent, single quotes, organize imports on save)
-- **Tests**: Vitest (frontend, api), Jest (backend, langgraph-server)
+- **Tests**: Vitest (all workspaces); jsdom + @testing-library/react for frontend component tests
 - **Commits**: Conventional commits via commitlint (types: feat,fix,docs,style,refactor,perf,test,build,ci,chore). No CJK characters in messages.
 - **Git Hooks**: Husky (pre-commit: lint-staged via Biome; commit-msg: commitlint)
 - **CI**: GitHub Actions — lint → build → test → coverage (Codecov)
@@ -42,7 +42,7 @@ packages/
 - Frontend uses `shadcn` for UI component management
 - Do not edit auto-generated files (lockfile, `pnpm-lock.yaml`)
 - Test files co-located with source (`*.spec.ts`, `*.test.ts`)
-- ESM-aware: langgraph-server uses `node --experimental-vm-modules jest`
+- Test files are co-located with source (`*.spec.ts`, `*.test.ts`, `*.test.tsx`)
 
 ## OpenSpec & Superpowers Workflow
 

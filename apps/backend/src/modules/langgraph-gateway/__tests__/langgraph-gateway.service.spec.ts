@@ -4,14 +4,14 @@ import { LanggraphClientRepository } from '../langgraph-client.repository';
 import { LanggraphGatewayService } from '../langgraph-gateway.service';
 import { SessionIndexRepository } from '../session-index.repository';
 
-jest.mock('node:crypto', () => ({
-  randomUUID: jest.fn(),
+vi.mock('node:crypto', () => ({
+  randomUUID: vi.fn(),
 }));
 
 describe('LanggraphGatewayService', () => {
   it('creates a stable sessionId and forwards requestId to repository', async () => {
     const repository = {
-      invoke: jest.fn().mockResolvedValue({
+      invoke: vi.fn().mockResolvedValue({
         sessionId: 'session-1',
         threadId: 'thread-1',
         requestId: 'request-1',
@@ -19,13 +19,13 @@ describe('LanggraphGatewayService', () => {
       }),
     };
     const sessionIndex = {
-      getThreadId: jest.fn().mockResolvedValue(null),
-      saveThreadId: jest.fn().mockResolvedValue(undefined),
-      getResponseByRequestId: jest.fn().mockResolvedValue(null),
-      saveResponseByRequestId: jest.fn().mockResolvedValue(undefined),
+      getThreadId: vi.fn().mockResolvedValue(null),
+      saveThreadId: vi.fn().mockResolvedValue(undefined),
+      getResponseByRequestId: vi.fn().mockResolvedValue(null),
+      saveResponseByRequestId: vi.fn().mockResolvedValue(undefined),
     };
 
-    const randomUUIDMock = jest.mocked(randomUUID);
+    const randomUUIDMock = vi.mocked(randomUUID);
     randomUUIDMock
       .mockReturnValueOnce('session-1')
       .mockReturnValueOnce('request-1');
@@ -64,7 +64,7 @@ describe('LanggraphGatewayService', () => {
 
   it('reuses thread mapping when same sessionId is provided', async () => {
     const repository = {
-      invoke: jest.fn().mockResolvedValue({
+      invoke: vi.fn().mockResolvedValue({
         sessionId: 'session-1',
         threadId: 'thread-1',
         requestId: 'request-1',
@@ -72,10 +72,10 @@ describe('LanggraphGatewayService', () => {
       }),
     };
     const sessionIndex = {
-      getThreadId: jest.fn().mockResolvedValue('thread-1'),
-      saveThreadId: jest.fn().mockResolvedValue(undefined),
-      getResponseByRequestId: jest.fn().mockResolvedValue(null),
-      saveResponseByRequestId: jest.fn().mockResolvedValue(undefined),
+      getThreadId: vi.fn().mockResolvedValue('thread-1'),
+      saveThreadId: vi.fn().mockResolvedValue(undefined),
+      getResponseByRequestId: vi.fn().mockResolvedValue(null),
+      saveResponseByRequestId: vi.fn().mockResolvedValue(undefined),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -104,7 +104,7 @@ describe('LanggraphGatewayService', () => {
 
   it('returns cached response when requestId already exists', async () => {
     const repository = {
-      invoke: jest.fn(),
+      invoke: vi.fn(),
     };
     const cachedResponse = {
       sessionId: 'session-1',
@@ -113,10 +113,10 @@ describe('LanggraphGatewayService', () => {
       message: 'cached',
     };
     const sessionIndex = {
-      getThreadId: jest.fn().mockResolvedValue('thread-1'),
-      saveThreadId: jest.fn().mockResolvedValue(undefined),
-      getResponseByRequestId: jest.fn().mockResolvedValue(cachedResponse),
-      saveResponseByRequestId: jest.fn().mockResolvedValue(undefined),
+      getThreadId: vi.fn().mockResolvedValue('thread-1'),
+      saveThreadId: vi.fn().mockResolvedValue(undefined),
+      getResponseByRequestId: vi.fn().mockResolvedValue(cachedResponse),
+      saveResponseByRequestId: vi.fn().mockResolvedValue(undefined),
     };
 
     const moduleRef = await Test.createTestingModule({
