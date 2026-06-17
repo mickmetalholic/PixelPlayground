@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { SteamGameSummary } from './steam-game.types.ts';
+import type { SteamGameSummary } from './steam-game.types';
 import {
   findGameById,
   paginateGames,
   parseLimit,
   searchGames,
-} from './steam-game-search.ts';
+} from './steam-game-search';
 
 const testGames: SteamGameSummary[] = [
   {

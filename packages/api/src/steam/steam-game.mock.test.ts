@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mockGames } from './steam-game.mock.ts';
+import { mockGames } from './steam-game.mock';
 
 describe('mockGameRecords', () => {
   it('contains all 7 expected app IDs', () => {

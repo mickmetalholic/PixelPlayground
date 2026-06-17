@@ -2,15 +2,15 @@ export type {
   AppContext,
   HomeServicePort,
   SteamServicePort,
-} from './context.ts';
-export type { AppRouter } from './routers/_app.ts';
-export { appRouter } from './routers/_app.ts';
+} from './context';
+export type { AppRouter } from './routers/_app';
+export { appRouter } from './routers/_app';
 export type {
   GameDiscountEvent,
   GameDiscountEventListItem,
   GameDiscountEventListResponse,
   GameDiscountEventType,
-} from './steam/game-discount-event.types.ts';
+} from './steam/game-discount-event.types';
 export type {
   PageInfo,
   SteamGameDetail,
@@ -22,5 +22,5 @@ export type {
   SteamPriceOverview,
   SteamRequirements,
   SteamSupportedLanguage,
-} from './steam/steam-game.types.ts';
-export { SteamErrorCode } from './steam/steam-game.types.ts';
+} from './steam/steam-game.types';
+export { SteamErrorCode } from './steam/steam-game.types';

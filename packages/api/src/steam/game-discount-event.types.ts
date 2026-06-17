@@ -1,4 +1,4 @@
-import type { PageInfo } from './steam-game.types.ts';
+import type { PageInfo } from './steam-game.types';
 
 export type GameDiscountEventType =
   | 'nonHistoricLow'

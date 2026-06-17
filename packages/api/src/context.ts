@@ -1,7 +1,7 @@
 import type {
   SteamGameDetail,
   SteamGameListResponse,
-} from './steam/steam-game.types.ts';
+} from './steam/steam-game.types';
 
 export type HomeServicePort = {
   getSummary: () => Promise<string>;

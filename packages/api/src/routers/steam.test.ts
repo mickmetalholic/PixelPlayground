@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { describe, expect, it, vi } from 'vitest';
-import { appRouter } from './_app.ts';
+import { appRouter } from './_app';
 
 const baseCtx = {
   services: { home: { getSummary: vi.fn() } },

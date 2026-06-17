@@ -1,4 +1,4 @@
-import type { GameDiscountEvent } from './game-discount-event.types.ts';
+import type { GameDiscountEvent } from './game-discount-event.types';
 
 export const mockDiscountEvents: GameDiscountEvent[] = [
   {

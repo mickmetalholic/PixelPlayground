@@ -32,7 +32,18 @@ export class SteamMetadataController {
     @Query('cursor') cursor?: string,
   ): Promise<SteamGameListResponse> {
     const parsedLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
-    return this.service.getGames(q, parsedLimit, cursor);
+    try {
+      return this.service.getGames(q, parsedLimit, cursor);
+    } catch (err) {
+      throw new HttpException(
+        {
+          code: 'STEAM_LIST_FAILURE',
+          message:
+            err instanceof Error ? err.message : 'Failed to list steam games.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Get(':steamId')

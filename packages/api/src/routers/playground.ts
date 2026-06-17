@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createRouter, publicProcedure } from '../trpc.ts';
+import { createRouter, publicProcedure } from '../trpc';
 
 const todoPreviewSchema = z.object({
   id: z.number(),

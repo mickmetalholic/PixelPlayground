@@ -1,17 +1,17 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { getAllDiscountEvents } from '../steam/game-discount-event.mock.ts';
-import { listDiscountEvents } from '../steam/game-discount-event-search.ts';
-import { getAllGames } from '../steam/steam-game.mock.ts';
-import type { SteamGameSummary } from '../steam/steam-game.types.ts';
-import { SteamErrorCode } from '../steam/steam-game.types.ts';
+import { getAllDiscountEvents } from '../steam/game-discount-event.mock';
+import { listDiscountEvents } from '../steam/game-discount-event-search';
+import { getAllGames } from '../steam/steam-game.mock';
+import type { SteamGameSummary } from '../steam/steam-game.types';
+import { SteamErrorCode } from '../steam/steam-game.types';
 import {
   findGameById,
   paginateGames,
   parseLimit,
   searchGames,
-} from '../steam/steam-game-search.ts';
-import { createRouter, publicProcedure } from '../trpc.ts';
+} from '../steam/steam-game-search';
+import { createRouter, publicProcedure } from '../trpc';
 
 const gamesInputSchema = z.object({
   q: z.string().optional().default(''),

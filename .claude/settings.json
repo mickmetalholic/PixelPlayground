@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Read",
       "Edit",
@@ -58,6 +59,26 @@
       "Bash(export *)",
       "Bash(unset *)"
     ]
+  },
+  "sandbox": {
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowLocalBinding": true,
+      "allowedDomains": [
+        "fonts.googleapis.com",
+        "registry.npmjs.org",
+        "*.npmjs.org",
+        "github.com",
+        "mirrors.cloud.tencent.com"
+      ]
+    },
+    "filesystem": {
+      "allowWrite": [
+        "$HOME/.nvm/*",
+        "/tmp/claude/*",
+        "/private/tmp/*"
+      ]
+    }
   },
   "env": {
     "NEST_ORIGIN": "http://127.0.0.1:3000",

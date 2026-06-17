@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { createRouter, publicProcedure } from '../trpc.ts';
+import { createRouter, publicProcedure } from '../trpc';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
