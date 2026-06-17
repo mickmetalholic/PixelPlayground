@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { SteamAppdetailsClient } from './steam-appdetails.client';
+import { SteamMetadataNormalizer } from './steam-metadata.normalizer';
+import { SteamMetadataRepository } from './steam-metadata.repository';
 import type {
   SteamGameDetail,
   SteamGameListResponse,
 } from '@pixel-playground/api';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class references
-import { SteamAppdetailsClient } from './steam-appdetails.client';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class references
-import { SteamMetadataNormalizer } from './steam-metadata.normalizer';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class references
-import { SteamMetadataRepository } from './steam-metadata.repository';
 
 @Injectable()
 export class SteamMetadataService {
