@@ -35,11 +35,11 @@
 
 ## 5. Frontend News Entry Workspace
 
-- [ ] 5.1 Add a content-production sidebar entry for discount news entry management.
-- [ ] 5.2 Build the workspace shell for draft list, create-draft action, active draft state, and loading/error/empty states.
-- [ ] 5.3 Fetch candidates for the active draft through the backend-backed tRPC path.
-- [ ] 5.4 Render candidate rows with game identity, discount period, discount percent, price, historic-low type, score, reason, and checkbox selection.
-- [ ] 5.5 Save selected candidate event IDs to the backend draft and refresh local UI state after success.
+- [ ] 5.1 Wire the existing `steam-daily-discounts` sidebar entry to the real workspace component instead of the placeholder.
+- [ ] 5.2 Build the draft list view (default route) with draft table/cards, create-draft button, type badge, selected-event count, timestamps, and loading/error/empty states.
+- [ ] 5.3 Build the draft detail sub-route (`[draftId]`) with a back-to-list navigation and candidate fetching through the backend-backed tRPC path.
+- [ ] 5.4 Render candidate rows in the detail view with game identity, discount period, discount percent, price, historic-low type, score, reason, and checkbox selection.
+- [ ] 5.5 Save selected candidate event IDs from the detail view to the backend draft and reflect updated state after returning to the draft list.
 - [ ] 5.6 Keep title, summary, body generation, and publish-channel controls out of the UI for this change.
 
 ## 6. Verification

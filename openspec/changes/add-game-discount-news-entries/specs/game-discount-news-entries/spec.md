@@ -125,23 +125,31 @@ The system SHALL expose a service-level method for updating news entry status so
 - **THEN** the change goes through a single service method that validates the transition and updates the entry atomically
 
 ### Requirement: Content production news selection workspace
-The frontend SHALL provide a content-production workspace where users can create a discount news draft, review candidate discount events, select events, and save the selection.
+The frontend SHALL provide a content-production workspace where users can create a discount news draft, review candidate discount events, select events, and save the selection. The workspace follows a list-first navigation pattern: a draft list at the default route, with a `[draftId]` sub-route for managing a single draft's candidates.
 
 #### Scenario: User opens news entry workspace
 - **WHEN** the user navigates to the discount news entry management workspace
-- **THEN** the system displays a workspace for news draft list and selection management instead of placeholder content
+- **THEN** the system displays a list of existing news drafts instead of placeholder content
 
 #### Scenario: User creates draft
 - **WHEN** the user clicks the create draft action
-- **THEN** the system creates a backend draft and displays it as the active draft
+- **THEN** the system creates a backend draft, adds it to the draft list, and navigates to the new draft's detail view
 
-#### Scenario: User reviews candidates
-- **WHEN** a draft is active
+#### Scenario: User opens draft detail
+- **WHEN** the user clicks a draft in the list
+- **THEN** the system navigates to the `[draftId]` sub-route showing the draft's candidate selection view
+
+#### Scenario: User reviews candidates in draft detail
+- **WHEN** the draft detail view is open
 - **THEN** the system displays ranked candidate discount events with game identity, discount percent, discounted price, historic-low type, discount period, score, reason, and selection state
 
 #### Scenario: User saves selection
 - **WHEN** the user selects candidate discount events and saves the draft
 - **THEN** the system updates the backend draft and reflects the saved selected events in the UI
+
+#### Scenario: User navigates back to draft list
+- **WHEN** the user navigates back from the draft detail to the draft list
+- **THEN** the system shows the updated list reflecting the latest draft state
 
 #### Scenario: Content generation is unavailable
 - **WHEN** the user is managing discount news entries in this first implementation

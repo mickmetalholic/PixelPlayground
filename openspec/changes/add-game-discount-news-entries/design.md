@@ -61,6 +61,16 @@ Each news entry has a `type` field (e.g. `dailyDeal`, `category`, `publisher`, `
 
 Alternative considered: separate data collections per content type. That would duplicate the pool CRUD, status machine, and tRPC contract for each category. A single model with a discriminator field keeps the surface area small and makes cross-type queries (e.g. "show me all drafts regardless of type") trivial.
 
+### List-first UI with sub-route for draft detail
+
+The frontend workspace follows a list-first navigation pattern: a draft list view is the default route, and clicking a draft navigates to a `[draftId]` sub-route where the user reviews candidates, selects events, and saves. This keeps the top-level workspace scannable and prevents the candidate table from competing with draft navigation.
+
+The workspace uses sub-routes under the existing `/content-production/steam-daily-discounts` path: the default route renders the draft list, and the `[draftId]` segment opens the candidate management view. Navigation between list and detail uses standard Next.js route transitions, keeping browser back/forward behavior natural.
+
+Future platform types (`category`, `publisher`, etc.) will add new sidebar items in the same content-production section, each following the same list → detail navigation pattern.
+
+Alternative considered: inline everything on one page (draft bar on top, candidate table below). That works for one or two drafts but breaks down when the draft count grows, and coupling draft navigation with candidate selection on the same surface makes the UI feel cramped once content generation and publish controls arrive later.
+
 ## Risks / Trade-offs
 
 - In-memory draft state disappears on backend restart -> acceptable for the first mock flow; keep repository interfaces narrow so a database can replace them later.
