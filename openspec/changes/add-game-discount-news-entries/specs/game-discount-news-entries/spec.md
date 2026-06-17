@@ -5,7 +5,15 @@ The system SHALL model game discount news entries as backend-owned draft records
 
 #### Scenario: Draft contains required fields
 - **WHEN** a game discount news draft is returned by the system
-- **THEN** it includes `id`, `status`, `selectedDiscountEventIds`, `createdAt`, and `updatedAt`
+- **THEN** it includes `id`, `type`, `status`, `selectedDiscountEventIds`, `createdAt`, and `updatedAt`
+
+#### Scenario: Type is constrained
+- **WHEN** a game discount news entry is returned by the system
+- **THEN** `type` is one of `dailyDeal`, `category`, `publisher`, `thematic`, or `seasonalSale`, with `dailyDeal` as the only active type in this change
+
+#### Scenario: New draft defaults to dailyDeal
+- **WHEN** a game discount news draft is created without specifying a type
+- **THEN** the new draft has type `dailyDeal`
 
 #### Scenario: Status is constrained
 - **WHEN** a game discount news entry is returned by the system
@@ -29,6 +37,13 @@ The system SHALL provide a Nest backend game discount news module that stores ne
 #### Scenario: Backend rejects unknown draft updates
 - **WHEN** a backend caller updates selected events for an unknown news entry ID
 - **THEN** the system returns a typed not-found error
+
+### Requirement: Type-aware candidate filtering
+The system SHALL dispatch candidate extraction to a type-specific filter strategy based on the news entry's `type` field, with `dailyDeal` as the only active strategy in this change.
+
+#### Scenario: Candidate extraction dispatches by type
+- **WHEN** candidates are requested for a draft of type `dailyDeal`
+- **THEN** the system applies the daily-deal filter strategy, and the candidate extraction code path supports adding new strategies for future types without restructuring the shared pipeline
 
 ### Requirement: Candidate discount event extraction
 The system SHALL extract eligible discount event candidates for a news draft from backend current discount events.
@@ -101,6 +116,13 @@ The system SHALL expose discount news draft procedures through the Nest backend 
 #### Scenario: Automation saves selected events through backend
 - **WHEN** an external automation caller invokes the backend tRPC update-selected-events procedure
 - **THEN** the backend updates the selected discount events on the target draft
+
+### Requirement: Service layer exposes clean status update boundary
+The system SHALL expose a service-level method for updating news entry status so that both tRPC procedures and future automation callers can transition drafts through the editorial pipeline through the same code path.
+
+#### Scenario: Status update is centralized
+- **WHEN** any caller needs to change a news entry's status
+- **THEN** the change goes through a single service method that validates the transition and updates the entry atomically
 
 ### Requirement: Content production news selection workspace
 The frontend SHALL provide a content-production workspace where users can create a discount news draft, review candidate discount events, select events, and save the selection.

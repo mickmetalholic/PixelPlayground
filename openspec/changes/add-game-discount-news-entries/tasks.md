@@ -1,6 +1,6 @@
 ## 1. Shared API Contracts
 
-- [ ] 1.1 Add shared discount news entry, candidate, status, request, and response types under `packages/api`.
+- [ ] 1.1 Add shared discount news entry, candidate, status, request, and response types under `packages/api`, including the `NewsCycleType` union with `dailyDeal` as the only active member.
 - [ ] 1.2 Extend the app context service ports so backend-backed discount events and discount news services can be injected without local mock reads.
 - [ ] 1.3 Add shared tRPC procedures for discount news draft creation, entry listing, candidate retrieval, and selected-event updates.
 - [ ] 1.4 Update discount event tRPC behavior to delegate through the backend service boundary when the service is available.
@@ -17,14 +17,16 @@
 ## 3. Backend Discount News Module
 
 - [ ] 3.1 Create `GameDiscountNewsModule` with an in-memory repository for draft entries.
-- [ ] 3.2 Implement draft creation with stable IDs, `draft` status, empty selected event IDs, and timestamps.
+- [ ] 3.2 Implement draft creation with stable IDs, `dailyDeal` type, `draft` status, empty selected event IDs, and timestamps.
+- [ ] 3.2b Expose a narrow `updateStatus` or `transition` method on the news service that validates allowed transitions, even though only `draft` status is used in this change.
 - [ ] 3.3 Implement entry listing sorted by creation time descending.
 - [ ] 3.4 Implement selected discount event update with unknown-draft errors, unknown-event validation, order preservation, and `updatedAt` changes.
 - [ ] 3.5 Add backend unit tests for draft lifecycle behavior and selected-event update failure cases.
 
 ## 4. Candidate Extraction
 
-- [ ] 4.1 Implement candidate extraction from backend current discount events for a target draft.
+- [ ] 4.1 Implement candidate extraction from backend current discount events for a target draft, dispatching to a type-specific filter strategy with `dailyDeal` as the only strategy in this change.
+- [ ] 4.1b Structure the candidate extraction code path so that future types can add filter strategies without restructuring the shared pipeline (current-events → published-exclusion → type-specific filter → ranking → limit).
 - [ ] 4.2 Exclude discount event IDs selected by entries with status `published` while allowing different event IDs for the same Steam game.
 - [ ] 4.3 Preserve or mark already-selected events for the active draft when they remain available.
 - [ ] 4.4 Implement deterministic scoring and ranking by historic-low type, discount percent, end time, and start time.

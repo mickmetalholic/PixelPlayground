@@ -55,6 +55,12 @@ Candidates are sorted by a deterministic score: `newHistoricLow` first, then `hi
 
 Alternative considered: AI-generated ranking or editorial text. That belongs with the later content-generation change.
 
+### News entry carries a type field for future content categories
+
+Each news entry has a `type` field (e.g. `dailyDeal`, `category`, `publisher`, `thematic`, `seasonalSale`). The first implementation only uses `dailyDeal`, but the field is required at creation so later categories (RPG specials, publisher spotlights, seasonal sale roundups) share the same pool model. Candidate extraction dispatches to a type-specific filter strategy — `dailyDeal` currently passes all current events through, while future types will apply additional filters (by genre, publisher, tag, etc.) without restructuring the shared pipeline.
+
+Alternative considered: separate data collections per content type. That would duplicate the pool CRUD, status machine, and tRPC contract for each category. A single model with a discriminator field keeps the surface area small and makes cross-type queries (e.g. "show me all drafts regardless of type") trivial.
+
 ## Risks / Trade-offs
 
 - In-memory draft state disappears on backend restart -> acceptable for the first mock flow; keep repository interfaces narrow so a database can replace them later.
@@ -62,3 +68,11 @@ Alternative considered: AI-generated ranking or editorial text. That belongs wit
 - Current mock discount data contains mostly historical events -> tests should inject or seed at least one current event, and UI empty states must handle no eligible candidates.
 - Candidate computation can change between draft creation and selection -> first version accepts live recomputation; later audit requirements can add candidate snapshots.
 - Nested tRPC procedure naming may require small router restructuring -> keep the public intent as `steam.discountNews.*`, but allow implementation to use the repo's supported router nesting pattern.
+
+## Future LangGraph Integration
+
+Content generation (title, summary, body) and multi-step editorial workflows will be orchestrated by a LangGraph agent in `apps/langgraph-server`. The agent will call the tRPC procedures defined in this change as tools — it does not own business state. The NestJS backend remains the source of truth for draft data, status transitions, and candidate computation.
+
+LangGraph's `interrupt()` will handle the human-in-the-loop pause for content review, while the NestJS service layer exposes a narrow `transition(id, status)` method that the agent calls to advance draft state through the editorial pipeline.
+
+No changes are needed in this change's implementation to support this — the tRPC contract and service boundary are already designed for automation callers.
