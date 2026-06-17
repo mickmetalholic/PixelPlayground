@@ -46,4 +46,4 @@
 - [x] 6.2 Run `pnpm lint` — no errors (Checked 141 files, 0 fixes applied)
 - [x] 6.3 Run `pnpm build` — api/langgraph-server/backend pass; frontend fails on fonts.googleapis.com (sandbox 网络限制，非代码问题)
 - [x] 6.4 Run `pnpm test` — api 46/46 ✅, frontend 12/12 ✅, langgraph-server 1/1 ✅, backend 28/35 (7 failures pre-existing ESM/CJS resolution)
-- [ ] 6.5 Run `pnpm spec:validate` — OpenSpec validation passes
+- [x] 6.5 Run `pnpm spec:validate` — OpenSpec validation passes
