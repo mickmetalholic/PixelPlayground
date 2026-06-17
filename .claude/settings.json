@@ -54,6 +54,7 @@
       "Bash(tee *)",
       "Bash(test *)",
       "Bash(source *)",
+      "Bash(. *)",
       "Bash(export *)",
       "Bash(unset *)"
     ]
