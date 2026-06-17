@@ -26,12 +26,12 @@
 ## 4. Candidate Extraction
 
 - [ ] 4.1 Implement candidate extraction from backend current discount events for a target draft, dispatching to a type-specific filter strategy with `dailyDeal` as the only strategy in this change.
-- [ ] 4.1b Structure the candidate extraction code path so that future types can add filter strategies without restructuring the shared pipeline (current-events → ready/archived-exclusion → type-specific filter → ranking → limit).
-- [ ] 4.2 Exclude discount event IDs selected by entries with status `ready` or `archived` while allowing different event IDs for the same Steam game.
+- [ ] 4.1b Structure the candidate extraction code path so that future types can add filter strategies without restructuring the shared pipeline (current-events → ready-exclusion → type-specific filter → ranking → limit).
+- [ ] 4.2 Exclude discount event IDs selected by entries with status `ready` while allowing different event IDs for the same Steam game.
 - [ ] 4.3 Preserve or mark already-selected events for the active draft when they remain available.
 - [ ] 4.4 Implement deterministic scoring and ranking by historic-low type, discount percent, end time, and start time.
 - [ ] 4.5 Return candidate `score`, `reason`, joined game identity, discount fields, and `alreadySelected` state.
-- [ ] 4.6 Add tests covering ready/archived event filtering, same-game future-event eligibility, ranking order, limit application, and explanation fields.
+- [ ] 4.6 Add tests covering ready event filtering, same-game future-event eligibility, ranking order, limit application, and explanation fields.
 
 ## 5. Frontend News Entry Workspace
 

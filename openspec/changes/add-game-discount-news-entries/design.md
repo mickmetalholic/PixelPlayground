@@ -1,6 +1,6 @@
 ## Context
 
-PixelPlayground already has Steam game metadata and game discount event concepts. Steam metadata has a Nest backend-backed repository and collection flow, while discount events are still read from shared mock data in `packages/api`. The new content workflow needs backend-owned state because a news draft must remember selected discount events, ready or archived pools must affect future candidate filtering, and external automation should be able to create drafts without going through the frontend.
+PixelPlayground already has Steam game metadata and game discount event concepts. Steam metadata has a Nest backend-backed repository and collection flow, while discount events are still read from shared mock data in `packages/api`. The new content workflow needs backend-owned state because a news draft must remember selected discount events, ready pools must affect future candidate filtering, and external automation should be able to create drafts without going through the frontend.
 
 The first implementation should keep the data source mock-backed and in-memory. The important change is the service boundary: discount facts and news draft state should be reachable from the Nest backend through the shared tRPC contract.
 
@@ -12,7 +12,7 @@ The first implementation should keep the data source mock-backed and in-memory. 
 - Add a backend `GameDiscountNewsModule` that owns in-memory news draft entries.
 - Allow external automation to create news drafts through the Nest backend tRPC endpoint.
 - Let users create a draft, retrieve ranked eligible discount candidates, select discount events, and save those selections.
-- Exclude discount event IDs that have already been selected in `ready` or `archived` pools while allowing the same game to appear again in a future discount event.
+- Exclude discount event IDs that have already been selected in `ready` pools while allowing the same game to appear again in a future discount event.
 - Keep the first version deterministic and testable with mock data.
 
 **Non-Goals:**
@@ -45,13 +45,13 @@ Alternative considered: persist a candidate snapshot when the draft is created. 
 
 ### Published filtering uses discount event IDs
 
-The dedupe key is `discountEventId`, not `steamId`. A game can appear again in a future promotion if the event ID is different. Candidate queries exclude event IDs selected by entries whose status is `ready` or `archived`.
+The dedupe key is `discountEventId`, not `steamId`. A game can appear again in a future promotion if the event ID is different. Candidate queries exclude event IDs selected by entries whose status is `ready`.
 
 Alternative considered: dedupe by game. That would suppress valid future discounts for the same game, which does not match the desired editorial behavior.
 
 ### Pool status is separate from platform publication status
 
-The news pool (NewsCycle) has its own lifecycle: `draft` (editor is selecting games) → `ready` (selection locked, available for platform teams to consume) → `archived` (all platform work complete). The pool itself is never "published" — it is a fact source consumed by downstream platform publications.
+The news pool (NewsCycle) has its own lifecycle: `draft` (editor is selecting games) → `ready` (selection locked, available for platform teams to consume). The pool itself is never "published" — it is a fact source consumed by downstream platform publications. Old pools stay `ready` and are filtered out of the default UI view by creation date rather than a separate status.
 
 Publishing status (`draft` → `generating` → `readyForReview` → `published` → `failed`) lives on the per-platform `PlatformPublication` entity, which will be introduced in a later change. Each platform publication references a pool and independently tracks its own editorial and publishing progress.
 
