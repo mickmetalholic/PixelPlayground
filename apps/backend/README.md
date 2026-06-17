@@ -25,6 +25,13 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## tRPC Panel
+
+- Endpoint: `/trpc-panel`
+- Default behavior: enabled when `NODE_ENV` is not `production`
+- Override enablement: `TRPC_PANEL_ENABLED=true|false`
+- Override target URL: `TRPC_PANEL_TRPC_URL=https://example.com/trpc`
+
 ## Project setup
 
 ```bash
