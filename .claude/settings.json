@@ -73,11 +73,7 @@
       ]
     },
     "filesystem": {
-      "allowWrite": [
-        "$HOME/.nvm/*",
-        "/tmp/claude/*",
-        "/private/tmp/*"
-      ]
+      "allowWrite": ["$HOME/.nvm/*", "/tmp/claude/*", "/private/tmp/*"]
     }
   },
   "env": {

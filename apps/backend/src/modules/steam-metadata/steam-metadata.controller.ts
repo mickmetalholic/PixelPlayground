@@ -15,10 +15,11 @@ import {
   SteamAppdetailsParseError,
   SteamAppdetailsTransportError,
 } from './steam-appdetails.client';
+// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import {
   SteamCollectionNotFoundError,
   SteamGameNotFoundError,
-  type SteamMetadataService,
+  SteamMetadataService,
 } from './steam-metadata.service';
 
 @Controller('steam/games')
