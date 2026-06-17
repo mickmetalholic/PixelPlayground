@@ -17,7 +17,7 @@ The system SHALL model game discount news entries as backend-owned draft records
 
 #### Scenario: Status is constrained
 - **WHEN** a game discount news entry is returned by the system
-- **THEN** `status` is one of `draft`, `readyForContent`, `published`, or `archived`
+- **THEN** `status` is one of `draft`, `ready`, or `archived`, reflecting the pool lifecycle only — publishing status is managed per-platform at the PlatformPublication layer
 
 #### Scenario: New draft has no selected events
 - **WHEN** a game discount news draft is created
@@ -52,12 +52,12 @@ The system SHALL extract eligible discount event candidates for a news draft fro
 - **WHEN** candidates are requested for a draft
 - **THEN** the system considers only discount events whose discount window is currently active
 
-#### Scenario: Published event is filtered
-- **WHEN** a current discount event ID is already selected by a news entry with status `published`
+#### Scenario: Selected event from ready or archived pool is filtered
+- **WHEN** a current discount event ID is already selected by a news entry with status `ready` or `archived`
 - **THEN** the event is excluded from candidate results for other drafts
 
 #### Scenario: Same game future event remains eligible
-- **WHEN** a game has a previous published discount event and a different current discount event ID
+- **WHEN** a game has a discount event already selected in a `ready` or `archived` pool and a different current discount event ID
 - **THEN** the current discount event remains eligible for candidate results
 
 #### Scenario: Existing draft selection is marked
