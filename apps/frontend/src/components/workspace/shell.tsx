@@ -24,6 +24,7 @@ import {
   workspaceNav,
 } from '@/lib/workspace/config';
 import { GameDiscountEventsWorkspace } from '../game-discount-events/game-discount-events-workspace';
+import { SteamDailyDiscountsWorkspace } from '../game-discount-news/steam-daily-discounts-workspace';
 import { SteamMetadataWorkspace } from '../steam-metadata/steam-metadata-workspace';
 
 const sectionIcons = {
@@ -75,9 +76,11 @@ const workspacePanels = {
 export function WorkspaceShell({
   sectionSlug,
   itemSlug,
+  draftId,
 }: {
   sectionSlug: string;
   itemSlug: string;
+  draftId?: string;
 }) {
   const currentSection = getSection(sectionSlug);
   const currentItem = currentSection
@@ -88,6 +91,7 @@ export function WorkspaceShell({
     workspacePanels['steam-game-metadata'];
   const isSteamMetadata = itemSlug === 'steam-game-metadata';
   const isDiscountEvents = itemSlug === 'game-discount-events';
+  const isSteamDailyDiscounts = itemSlug === 'steam-daily-discounts';
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -215,6 +219,8 @@ export function WorkspaceShell({
               <SteamMetadataWorkspace />
             ) : isDiscountEvents ? (
               <GameDiscountEventsWorkspace />
+            ) : isSteamDailyDiscounts ? (
+              <SteamDailyDiscountsWorkspace draftId={draftId} />
             ) : (
               <PlaceholderWorkspaceContent
                 currentLabel={currentItem?.label}

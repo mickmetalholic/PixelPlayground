@@ -1,6 +1,8 @@
 import type {
   AppContext,
   AppRouter,
+  DiscountEventsServicePort,
+  DiscountNewsServicePort,
   SteamServicePort,
 } from '@pixel-playground/api';
 import type { TRPCClient } from '@trpc/client';
@@ -40,6 +42,54 @@ function createLazySteamService(
   };
 }
 
+function createLazyDiscountEventsService(
+  getBackendClient: () => TRPCClient<AppRouter>,
+  canReachBackend: () => boolean,
+): DiscountEventsServicePort | undefined {
+  if (!canReachBackend()) return undefined;
+
+  return {
+    getDiscountEvents: (params) =>
+      getBackendClient().steam.discountEvents.query(params),
+    getCurrentDiscountEvents: (params) =>
+      getBackendClient().steam.currentDiscountEvents.query(params),
+    getDiscountEventById: async (discountEventId) => {
+      const result = await getBackendClient().steam.discountEvents.query({
+        limit: 100,
+      });
+      return result.items.find((item) => item.id === discountEventId) ?? null;
+    },
+  };
+}
+
+function createLazyDiscountNewsService(
+  getBackendClient: () => TRPCClient<AppRouter>,
+  canReachBackend: () => boolean,
+): DiscountNewsServicePort | undefined {
+  if (!canReachBackend()) return undefined;
+
+  return {
+    createDraft: (params) =>
+      getBackendClient().steam.discountNews.createDraft.mutate(params),
+    listEntries: () => getBackendClient().steam.discountNews.entries.query(),
+    getCandidates: (newsEntryId, params) =>
+      getBackendClient().steam.discountNews.candidates.query({
+        newsEntryId,
+        limit: params?.limit,
+      }),
+    updateSelectedEvents: (newsEntryId, selectedDiscountEventIds) =>
+      getBackendClient().steam.discountNews.updateSelectedEvents.mutate({
+        newsEntryId,
+        selectedDiscountEventIds,
+      }),
+    updateStatus: (newsEntryId, status) =>
+      getBackendClient().steam.discountNews.updateStatus.mutate({
+        newsEntryId,
+        status,
+      }),
+  };
+}
+
 export async function createFrontendTrpcContext(
   client?: TRPCClient<AppRouter>,
   options: FrontendTrpcContextOptions = {},
@@ -53,6 +103,14 @@ export async function createFrontendTrpcContext(
     backendClient ??= createBackendClient(getNestOrigin());
     return backendClient;
   };
+  const canReachBackend = () => {
+    try {
+      getNestOrigin();
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return {
     services: {
@@ -63,6 +121,14 @@ export async function createFrontendTrpcContext(
         },
       },
       steam: createLazySteamService(getNestOrigin),
+      discountEvents: createLazyDiscountEventsService(
+        getBackendClient,
+        canReachBackend,
+      ),
+      discountNews: createLazyDiscountNewsService(
+        getBackendClient,
+        canReachBackend,
+      ),
     },
   };
 }

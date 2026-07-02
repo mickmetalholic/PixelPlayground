@@ -92,6 +92,28 @@ Per-platform modules implement a `PlatformPublisher` interface for platform-spec
 
 Alternative considered: separate NestJS apps per platform. Overhead is too high for what is purely a modularity concern — a single backend with platform sub-modules scales well into the foreseeable platform count.
 
+### Content production strategy is selected by platform and pool type
+
+The pool layer decides what games were selected; the publication layer decides how those selected games become platform-specific content. Content generation and formatting therefore dispatch through a `ContentProductionStrategy` keyed by both `platform` and the parent `NewsCycle.type`.
+
+```
+NewsCycle.type       PlatformPublication.platform       Strategy key
+dailyDeal       +    xiaoheihe                    ->    xiaoheihe.dailyDeal
+dailyDeal       +    xiaohongshu                  ->    xiaohongshu.dailyDeal
+publisherSale   +    xiaoheihe                    ->    xiaoheihe.publisherSale
+genreSale       +    xiaohongshu                  ->    xiaohongshu.genreSale
+```
+
+This keeps selection and content production separate:
+
+- `SelectionStrategy` lives with NewsCycle candidate extraction and is keyed only by `NewsCycle.type`.
+- `ContentProductionStrategy` lives with PlatformPublication and is keyed by `(platform, NewsCycle.type)`.
+- `PlatformPublisher` remains responsible for platform-specific validation and publish transport behavior, not for choosing games.
+
+In this change, content production strategies are placeholders. The strategy registry and key shape should exist so future LangGraph or formatter work has a stable dispatch boundary, but strategy implementations must not generate real title, body, tags, cover prompts, or call AI providers yet. Unsupported `(platform, type)` combinations should return an explicit unsupported-strategy result instead of falling back to another strategy.
+
+Alternative considered: key content generation only by platform. That would make 小黑盒 daily deals and 小黑盒 publisher-sale roundups share the same generation path even though their content structure, intro framing, and selection explanation differ. The platform-only split is too coarse once multiple pool types exist.
+
 ### Frontend follows list-first sub-route pattern
 
 Consistent with the pool workspace design: the default route shows the publication list (per pool), and clicking a publication navigates to a `[publicationId]` sub-route. The detail view shows pipeline progress using the shared `PLATFORM_PIPELINES` config and renders platform-specific content fields.

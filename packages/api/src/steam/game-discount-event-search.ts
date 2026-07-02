@@ -2,9 +2,9 @@ import type {
   GameDiscountEvent,
   GameDiscountEventListItem,
   GameDiscountEventListResponse,
-} from './game-discount-event.types';
-import type { SteamGameSummary } from './steam-game.types';
-import { parseLimit } from './steam-game-search';
+} from './game-discount-event.types.ts';
+import type { SteamGameSummary } from './steam-game.types.ts';
+import { parseLimit } from './steam-game-search.ts';
 
 export function listDiscountEvents(
   events: GameDiscountEvent[],

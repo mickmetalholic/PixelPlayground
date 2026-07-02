@@ -1,4 +1,4 @@
-import type { PageInfo, SteamGameSummary } from './steam-game.types';
+import type { PageInfo, SteamGameSummary } from './steam-game.types.ts';
 
 function normalizeQuery(text: string): string {
   return text.trim().toLowerCase();
