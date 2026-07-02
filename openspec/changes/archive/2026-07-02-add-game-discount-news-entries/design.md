@@ -67,7 +67,26 @@ Alternative considered: AI-generated ranking or editorial text. That belongs wit
 
 ### News entry carries a type field for future content categories
 
-Each news entry has a `type` field (e.g. `dailyDeal`, `category`, `publisher`, `thematic`, `seasonalSale`). The first implementation only uses `dailyDeal`, but the field is required at creation so later categories (RPG specials, publisher spotlights, seasonal sale roundups) share the same pool model. Candidate extraction dispatches to a type-specific filter strategy — `dailyDeal` currently passes all current events through, while future types will apply additional filters (by genre, publisher, tag, etc.) without restructuring the shared pipeline.
+Each news entry has a `type` field (e.g. `dailyDeal`, `seasonalSale`, `publisherSale`, `genreSale`, `thematic`). The first implementation only activates `dailyDeal`, but the field is required so later categories (Steam seasonal sale roundups, publisher spotlights, genre specials, and editorial themes) share the same pool model.
+
+Candidate extraction dispatches to a `SelectionStrategy` selected by `NewsCycle.type`. The shared extraction pipeline is:
+
+```
+current discount events
+  -> exclude discount event IDs already selected by ready pools
+  -> apply type-specific SelectionStrategy filter
+  -> apply deterministic ranking
+  -> apply limit
+```
+
+`dailyDeal` is the only implemented strategy in this change. It does not add a type-specific filter beyond the shared current-event and ready-pool exclusion steps, then ranks by deterministic discount quality signals. Future strategies will add filters without restructuring the pipeline:
+
+- `seasonalSale`: sale campaign/window membership, coverage across price bands and genres, headliner plus long-tail balance.
+- `publisherSale`: publisher/developer criteria, representative franchises, series coverage, and discount quality within that publisher.
+- `genreSale`: genre/tag criteria, sub-genre diversity, and discount quality within the selected genre.
+- `thematic`: editorial criteria such as Steam Deck fit, co-op, low-spec, weekend-length games, or manually curated themes.
+
+Non-`dailyDeal` strategy names may exist in the shared type union, but this change must treat them as inactive. Candidate requests for inactive strategies should fail with an explicit unsupported-type error instead of silently falling back to `dailyDeal`.
 
 Alternative considered: separate data collections per content type. That would duplicate the pool CRUD, status machine, and tRPC contract for each category. A single model with a discriminator field keeps the surface area small and makes cross-type queries (e.g. "show me all drafts regardless of type") trivial.
 
@@ -77,7 +96,7 @@ The frontend workspace follows a list-first navigation pattern: a draft list vie
 
 The workspace uses sub-routes under the existing `/content-production/steam-daily-discounts` path: the default route renders the draft list, and the `[draftId]` segment opens the candidate management view. Navigation between list and detail uses standard Next.js route transitions, keeping browser back/forward behavior natural.
 
-Future platform types (`category`, `publisher`, etc.) will add new sidebar items in the same content-production section, each following the same list → detail navigation pattern.
+Future pool types (`genreSale`, `publisherSale`, etc.) will add new sidebar items in the same content-production section, each following the same list → detail navigation pattern.
 
 Alternative considered: inline everything on one page (draft bar on top, candidate table below). That works for one or two drafts but breaks down when the draft count grows, and coupling draft navigation with candidate selection on the same surface makes the UI feel cramped once content generation and publish controls arrive later.
 

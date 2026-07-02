@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { describe, expect, it, vi } from 'vitest';
+import type { DiscountNewsServicePort } from '../context';
 import { appRouter } from './_app';
 
 const baseCtx = {
@@ -144,6 +145,148 @@ describe('steam.discountEvents', () => {
 
     const hasOrphan = result.items.some((item) => item.steamId === '999999');
     expect(hasOrphan).toBe(false);
+  });
+
+  it('delegates discount event list to service when available', async () => {
+    const mockService = {
+      getDiscountEvents: vi.fn().mockResolvedValue({
+        items: [],
+        pageInfo: { limit: 10, hasNextPage: false, nextCursor: null },
+        total: 0,
+      }),
+      getCurrentDiscountEvents: vi.fn(),
+      getDiscountEventById: vi.fn(),
+    };
+    const caller = appRouter.createCaller({
+      services: {
+        home: { getSummary: vi.fn() },
+        discountEvents: mockService,
+      },
+    });
+
+    await caller.steam.discountEvents({ limit: 10 });
+
+    expect(mockService.getDiscountEvents).toHaveBeenCalledWith({
+      limit: 10,
+      cursor: undefined,
+    });
+  });
+
+  it('current discount events require backend service', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    await expect(caller.steam.currentDiscountEvents({})).rejects.toMatchObject({
+      code: 'SERVICE_UNAVAILABLE',
+    });
+  });
+});
+
+describe('steam.discountNews', () => {
+  const draft = {
+    id: 'discount-news-0001',
+    type: 'dailyDeal' as const,
+    status: 'draft' as const,
+    selectedDiscountEventIds: [],
+    createdAt: '2026-07-01T00:00:00.000Z',
+    updatedAt: '2026-07-01T00:00:00.000Z',
+  };
+
+  function createCallerWithDiscountNews(
+    overrides: Partial<DiscountNewsServicePort> = {},
+  ) {
+    const mockService = {
+      createDraft: vi.fn().mockResolvedValue(draft),
+      listEntries: vi.fn().mockResolvedValue({ items: [draft], total: 1 }),
+      getCandidates: vi
+        .fn()
+        .mockResolvedValue({ items: [], total: 0, limit: 20 }),
+      updateSelectedEvents: vi.fn().mockResolvedValue({
+        ...draft,
+        selectedDiscountEventIds: ['disc-001'],
+      }),
+      updateStatus: vi.fn().mockResolvedValue({ ...draft, status: 'ready' }),
+      ...overrides,
+    };
+
+    return {
+      caller: appRouter.createCaller({
+        services: {
+          home: { getSummary: vi.fn() },
+          discountNews: mockService,
+        },
+      }),
+      mockService,
+    };
+  }
+
+  it('requires backend service for draft creation', async () => {
+    const caller = appRouter.createCaller(baseCtx);
+
+    await expect(caller.steam.discountNews.createDraft()).rejects.toMatchObject(
+      {
+        code: 'SERVICE_UNAVAILABLE',
+      },
+    );
+  });
+
+  it('delegates draft lifecycle procedures to discount news service', async () => {
+    const { caller, mockService } = createCallerWithDiscountNews();
+
+    await expect(caller.steam.discountNews.createDraft()).resolves.toEqual(
+      draft,
+    );
+    await expect(caller.steam.discountNews.entries()).resolves.toEqual({
+      items: [draft],
+      total: 1,
+    });
+    await caller.steam.discountNews.candidates({
+      newsEntryId: draft.id,
+      limit: 10,
+    });
+    await caller.steam.discountNews.updateSelectedEvents({
+      newsEntryId: draft.id,
+      selectedDiscountEventIds: ['disc-001'],
+    });
+    await caller.steam.discountNews.updateStatus({
+      newsEntryId: draft.id,
+      status: 'ready',
+    });
+
+    expect(mockService.createDraft).toHaveBeenCalledWith(undefined);
+    expect(mockService.listEntries).toHaveBeenCalled();
+    expect(mockService.getCandidates).toHaveBeenCalledWith(draft.id, {
+      limit: 10,
+    });
+    expect(mockService.updateSelectedEvents).toHaveBeenCalledWith(draft.id, [
+      'disc-001',
+    ]);
+    expect(mockService.updateStatus).toHaveBeenCalledWith(draft.id, 'ready');
+  });
+
+  it('rejects inactive draft type at the router boundary', async () => {
+    const { caller } = createCallerWithDiscountNews();
+
+    await expect(
+      caller.steam.discountNews.createDraft({ type: 'publisherSale' as never }),
+    ).rejects.toThrow(TRPCError);
+  });
+
+  it('maps discount news domain errors to tRPC errors', async () => {
+    const { caller } = createCallerWithDiscountNews({
+      getCandidates: vi
+        .fn()
+        .mockRejectedValue(
+          new Error(
+            'DISCOUNT_NEWS_UNSUPPORTED_STRATEGY: News cycle type "genreSale" is not active.',
+          ),
+        ),
+    });
+
+    await expect(
+      caller.steam.discountNews.candidates({ newsEntryId: draft.id }),
+    ).rejects.toMatchObject({
+      code: 'BAD_REQUEST',
+    });
   });
 });
 

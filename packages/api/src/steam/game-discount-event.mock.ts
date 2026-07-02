@@ -1,11 +1,11 @@
-import type { GameDiscountEvent } from './game-discount-event.types';
+import type { GameDiscountEvent } from './game-discount-event.types.ts';
 
 export const mockDiscountEvents: GameDiscountEvent[] = [
   {
     id: 'disc-001',
     steamId: '1091500',
     startAt: '2026-06-15T00:00:00Z',
-    endAt: '2026-06-29T00:00:00Z',
+    endAt: '2026-07-15T00:00:00Z',
     discountPercent: 50,
     discountedPrice: {
       currency: 'USD',
@@ -17,8 +17,8 @@ export const mockDiscountEvents: GameDiscountEvent[] = [
   {
     id: 'disc-002',
     steamId: '2507950',
-    startAt: '2026-05-01T00:00:00Z',
-    endAt: '2026-05-15T00:00:00Z',
+    startAt: '2026-06-25T00:00:00Z',
+    endAt: '2026-07-10T00:00:00Z',
     discountPercent: 10,
     discountedPrice: {
       currency: 'USD',

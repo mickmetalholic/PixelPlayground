@@ -1,7 +1,7 @@
 import type {
   SteamGameDetail,
   SteamSupportedLanguage,
-} from './steam-game.types';
+} from './steam-game.types.ts';
 
 type LanguageCapabilities = Omit<SteamSupportedLanguage, 'name'>;
 

@@ -4,7 +4,8 @@
 - [ ] 1.2 Add placeholder `PipelineNode` union, per-platform `PLATFORM_PIPELINES` config, and helper functions (`isTerminalNode`, `isHumanNode`, `nextNode`) under `packages/api`.
 - [ ] 1.3 Add shared tRPC procedures for platform publication listing, selected-event update, and pipeline transition.
 - [ ] 1.4 Add `PlatformPublisher` interface to `packages/api` (or keep it in backend if it references NestJS types — decide during implementation).
-- [ ] 1.5 Add focused `packages/api` router tests for platform publication procedure validation and discriminated-union type narrowing.
+- [ ] 1.5 Add shared content production strategy key/types for `(platform, NewsCycleType)` dispatch, with placeholder result and unsupported-strategy result shapes.
+- [ ] 1.6 Add focused `packages/api` router tests for platform publication procedure validation, discriminated-union type narrowing, and content strategy key typing where applicable.
 
 ## 2. Backend Platform Publication Base Module
 
@@ -19,8 +20,9 @@
 
 - [ ] 3.1 Create `XiaoheiheModule` with a `XiaoheihePublisherService` implementing `PlatformPublisher` (placeholder: `validateFormat` and `publish` return typed stubs).
 - [ ] 3.2 Create `XiaohongshuModule` with a `XiaohongshuPublisherService` implementing `PlatformPublisher` (placeholder: `validateFormat` and `publish` return typed stubs).
-- [ ] 3.3 Register both platform modules as imports of the base module or the root app module.
-- [ ] 3.4 Add backend unit tests for placeholder publisher behavior and module registration.
+- [ ] 3.3 Add placeholder `ContentProductionStrategy` registration keyed by `(platform, NewsCycleType)`; real generation remains out of scope.
+- [ ] 3.4 Register both platform modules as imports of the base module or the root app module.
+- [ ] 3.5 Add backend unit tests for placeholder publisher behavior, content strategy unsupported results, and module registration.
 
 ## 4. Frontend Platform Publication Workspace
 

@@ -1,5 +1,8 @@
-## ADDED Requirements
+# game-discount-news-entries Specification
 
+## Purpose
+TBD - created by archiving change add-game-discount-news-entries. Update Purpose after archive.
+## Requirements
 ### Requirement: Discount news entry contract
 The system SHALL model game discount news entries as backend-owned draft records with stable identifiers, status, timestamps, and selected discount event IDs.
 
@@ -9,7 +12,7 @@ The system SHALL model game discount news entries as backend-owned draft records
 
 #### Scenario: Type is constrained
 - **WHEN** a game discount news entry is returned by the system
-- **THEN** `type` is one of `dailyDeal`, `category`, `publisher`, `thematic`, or `seasonalSale`, with `dailyDeal` as the only active type in this change
+- **THEN** `type` is one of `dailyDeal`, `seasonalSale`, `publisherSale`, `genreSale`, or `thematic`, with `dailyDeal` as the only active type in this change
 
 #### Scenario: New draft defaults to dailyDeal
 - **WHEN** a game discount news draft is created without specifying a type
@@ -44,6 +47,14 @@ The system SHALL dispatch candidate extraction to a type-specific filter strateg
 #### Scenario: Candidate extraction dispatches by type
 - **WHEN** candidates are requested for a draft of type `dailyDeal`
 - **THEN** the system applies the daily-deal filter strategy, and the candidate extraction code path supports adding new strategies for future types without restructuring the shared pipeline
+
+#### Scenario: Daily-deal strategy uses shared discount quality ranking
+- **WHEN** candidates are requested for a draft of type `dailyDeal`
+- **THEN** the system applies only the shared current-event and ready-pool exclusion filters before ranking by deterministic discount quality signals
+
+#### Scenario: Inactive strategy is explicit
+- **WHEN** candidates are requested for a draft whose type is `seasonalSale`, `publisherSale`, `genreSale`, or `thematic` in this change
+- **THEN** the system rejects the request with a typed unsupported-strategy error instead of falling back to the daily-deal strategy
 
 ### Requirement: Candidate discount event extraction
 The system SHALL extract eligible discount event candidates for a news draft from backend current discount events.
@@ -154,3 +165,4 @@ The frontend SHALL provide a content-production workspace where users can create
 #### Scenario: Content generation is unavailable
 - **WHEN** the user is managing discount news entries in this first implementation
 - **THEN** the system does not expose title, summary, body generation, or publish-channel controls
+

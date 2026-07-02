@@ -1,7 +1,7 @@
-import { createRouter } from '../trpc';
-import { homeRouter } from './home';
-import { playgroundRouter } from './playground';
-import { steamRouter } from './steam';
+import { createRouter } from '../trpc.ts';
+import { homeRouter } from './home.ts';
+import { playgroundRouter } from './playground.ts';
+import { steamRouter } from './steam.ts';
 
 export const appRouter = createRouter({
   home: homeRouter,

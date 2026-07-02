@@ -25,6 +25,10 @@ The system SHALL model platform publications as backend-owned records with a per
 - **WHEN** a platform publication is created from a pool
 - **THEN** its `selectedDiscountEventIds` must be a subset of the parent pool's `selectedDiscountEventIds`
 
+#### Scenario: Publication derives content category from parent pool
+- **WHEN** a platform publication needs content production behavior
+- **THEN** the system uses the parent pool's `type` together with the publication's `platform` to select the content production strategy
+
 ### Requirement: Pipeline node type and per-platform configuration
 The system SHALL define a shared `PipelineNode` union type and per-platform `PLATFORM_PIPELINES` configuration that frontend, backend, and LangGraph all consume.
 
@@ -77,6 +81,21 @@ The system SHALL provide per-platform NestJS modules that implement a `PlatformP
 #### Scenario: Placeholder publish returns stub
 - **WHEN** a platform's `publish` method is called in this change
 - **THEN** it returns a typed placeholder result without calling any external API
+
+### Requirement: Platform and type aware content production strategy
+The system SHALL define a placeholder content production strategy boundary keyed by platform and parent pool type, without implementing real content generation in this change.
+
+#### Scenario: Content strategy key uses platform and pool type
+- **WHEN** a content production strategy is selected for a publication
+- **THEN** the strategy key is the combination of `PlatformPublication.platform` and the parent NewsCycle `type`
+
+#### Scenario: Content strategy implementations are placeholders
+- **WHEN** this change is implemented
+- **THEN** content strategy implementations return typed placeholder results and do not generate titles, summaries, bodies, tags, cover prompts, or call AI providers
+
+#### Scenario: Unsupported content strategy is explicit
+- **WHEN** no content production strategy exists for a publication's `(platform, poolType)` combination
+- **THEN** the system returns a typed unsupported-strategy result instead of falling back to another platform or pool type
 
 ### Requirement: tRPC publication procedures
 The system SHALL expose platform publication procedures through the Nest backend tRPC endpoint for frontend and automation callers.
